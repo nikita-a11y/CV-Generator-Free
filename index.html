@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CV Creator Platinum - Generatore PDF</title>
+    <title>CV Creator Diamond - Generatore Professionale</title>
     
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     
     <!-- Font & Icone -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;600;700&family=Merriweather:wght@300;400;700&family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;600;700&family=Merriweather:wght@300;400;700&family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
 
     <!-- Configurazione Tailwind -->
     <script>
@@ -24,9 +24,14 @@
                         poppins: ['Poppins', 'sans-serif'],
                     },
                     colors: {
-                        primary: 'var(--color-primary)',
-                        'side-bg': 'var(--color-side-bg)',
-                        'side-text': 'var(--color-side-text)',
+                        brand: '#3b82f6',
+                        dark: '#0f172a',
+                        darker: '#020617',
+                        surface: '#1e293b',
+                    },
+                    boxShadow: {
+                        'glow': '0 0 20px rgba(59, 130, 246, 0.5)',
+                        'card': '0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.15)',
                     }
                 }
             }
@@ -39,9 +44,10 @@
             margin: 0;
             padding: 0;
             height: 100%;
-            background-color: #0f172a; /* Sfondo scuro per l'app */
+            background-color: #020617; /* Darker background */
+            color: #e2e8f0;
             font-family: 'Inter', sans-serif;
-            overflow: hidden; /* App-like feel */
+            overflow: hidden;
         }
         
         .app-container {
@@ -51,38 +57,38 @@
             box-sizing: border-box;
         }
 
-        /* Scrollbar personalizzata */
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #1e293b; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
+        /* Scrollbar personalizzata raffinata */
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #64748b; }
 
         /* --- FOGLIO A4 (Target) --- */
         #cv-render-target {
-            width: 210mm;
-            min-height: 297mm;
+            width: 210mm; /* A4 width default */
+            min-height: 297mm; /* A4 height default */
             background: white;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
             transform-origin: top center;
-            transition: transform 0.2s ease;
+            transition: transform 0.2s ease, width 0.2s ease, min-height 0.2s ease;
             position: relative;
-            margin-bottom: 50px; /* Spazio per lo scroll */
+            margin-bottom: 50px;
+            color: #1e293b; /* Reset text color for white paper */
         }
         
-        /* Variabili CSS Dinamiche */
-        .cv-page {
-            color: var(--color-text, #1e293b);
-            line-height: 1.5;
+        /* Classi dinamiche per i template */
+        .cv-sidebar-left-layout {
+            /* TRUCCO PER STAMPA: Gradiente sul genitore invece che background sul figlio */
+            background: linear-gradient(to right, var(--color-side-bg) 35%, white 35%);
+            min-height: 297mm; /* Assicura altezza minima */
+            height: 100%;
         }
-        
-        /* --- REGOLE DI STAMPA CRITICHE (FIX PDF BIANCO) --- */
-        @media print {
-            /* 1. Nascondi TUTTO */
-            body * {
-                visibility: hidden;
-            }
 
-            /* 2. Resetta contenitori principali */
+        /* --- STILI DI STAMPA CRITICI --- */
+        @media print {
+            body * { visibility: hidden; }
+            
+            /* Reset contenitori */
             body, html, .app-container, #preview-container {
                 background: white !important;
                 height: auto !important;
@@ -93,35 +99,34 @@
                 padding: 0 !important;
             }
 
-            /* 3. Rendi visibile SOLO il CV e i suoi figli */
+            /* Rendi visibile il CV */
             #cv-render-target, #cv-render-target * {
                 visibility: visible;
             }
 
-            /* 4. Posiziona il CV in alto a sinistra assoluto */
+            /* Posizionamento fisso per la stampa */
             #cv-render-target {
-                position: fixed;
+                position: absolute;
                 left: 0;
                 top: 0;
-                width: 210mm !important;
-                min-height: 297mm !important;
+                width: 100% !important; /* Si adatta alla pagina di stampa */
                 margin: 0 !important;
                 padding: 0 !important;
                 box-shadow: none !important;
-                transform: none !important; /* Disabilita lo zoom JS */
+                transform: none !important;
                 z-index: 9999;
                 
-                /* 5. Forza la stampa di sfondi e colori */
+                /* Forza stampa colori e sfondi */
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
-                background-color: white !important;
             }
 
-            /* 6. Impostazioni Pagina */
-            @page {
-                margin: 0;
-                size: A4;
+            /* Gestione interruzioni pagina */
+            .cv-section, .cv-item {
+                page-break-inside: avoid;
             }
+
+            @page { margin: 0; size: auto; }
         }
     </style>
 </head>
@@ -130,28 +135,41 @@
 <div id="cv-app-root" class="app-container">
     
     <!-- EDITOR (SINISTRA) -->
-    <div class="w-full md:w-[420px] bg-slate-900 border-r border-slate-700 flex-shrink-0 flex flex-col z-20 print-hidden shadow-2xl">
+    <div class="w-full md:w-[450px] bg-surface border-r border-slate-700 flex-shrink-0 flex flex-col z-20 print-hidden shadow-2xl">
         
         <!-- HEADER -->
-        <div class="p-5 border-b border-slate-700 flex justify-between items-center bg-slate-900">
-            <div class="text-white text-xl font-bold flex items-center gap-2 tracking-tight">
-                <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center text-white shadow-lg">
-                    <i class="fa-solid fa-file-contract text-sm"></i>
+        <div class="p-5 border-b border-slate-700 bg-dark/50 backdrop-blur-md sticky top-0 z-30">
+            <div class="flex justify-between items-center mb-4">
+                <div class="text-white text-xl font-extrabold flex items-center gap-2 tracking-tight">
+                    <div class="w-9 h-9 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center text-white shadow-glow">
+                        <i class="fa-solid fa-layer-group text-sm"></i>
+                    </div>
+                    <span class="bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">CV Diamond</span>
                 </div>
-                CV Platinum
             </div>
-            <button onclick="cvApp.resetData()" class="text-slate-400 hover:text-white transition-colors text-sm flex items-center gap-1">
-                <i class="fa-solid fa-rotate-right"></i> Reset
-            </button>
+            
+            <!-- Azioni Rapide -->
+            <div class="flex gap-2">
+                <button onclick="cvApp.resetData()" class="flex-1 px-3 py-2 bg-slate-800 text-slate-300 rounded-lg text-xs font-semibold hover:bg-slate-700 hover:text-white transition-all border border-slate-700 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-trash-can"></i> Reset
+                </button>
+                <button onclick="cvApp.exportData()" class="flex-1 px-3 py-2 bg-slate-800 text-slate-300 rounded-lg text-xs font-semibold hover:bg-slate-700 hover:text-white transition-all border border-slate-700 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-download"></i> Salva
+                </button>
+                <label class="flex-1 px-3 py-2 bg-slate-800 text-slate-300 rounded-lg text-xs font-semibold hover:bg-slate-700 hover:text-white transition-all border border-slate-700 flex items-center justify-center gap-2 cursor-pointer">
+                    <i class="fa-solid fa-upload"></i> Carica
+                    <input type="file" accept=".json" onchange="cvApp.importData(this)" class="hidden">
+                </label>
+            </div>
         </div>
 
         <!-- TABS -->
-        <div class="flex bg-slate-800 p-1 gap-1 mx-4 mt-4 rounded-lg">
-            <button id="tab-content" onclick="cvApp.switchTab('content', this)" class="flex-1 py-2 text-sm font-medium text-white bg-slate-700 rounded shadow-sm transition-all">
-                Dati
+        <div class="flex px-5 pt-4 gap-2">
+            <button id="tab-content" onclick="cvApp.switchTab('content', this)" class="flex-1 py-2.5 text-sm font-bold text-white bg-blue-600 rounded-lg shadow-lg transition-all transform hover:scale-[1.02]">
+                <i class="fa-solid fa-pen-to-square mr-1"></i> Contenuto
             </button>
-            <button id="tab-design" onclick="cvApp.switchTab('design', this)" class="flex-1 py-2 text-sm font-medium text-slate-400 hover:text-white transition-all">
-                Stile
+            <button id="tab-design" onclick="cvApp.switchTab('design', this)" class="flex-1 py-2.5 text-sm font-bold text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-lg transition-all transform hover:scale-[1.02]">
+                <i class="fa-solid fa-palette mr-1"></i> Design
             </button>
         </div>
 
@@ -159,19 +177,18 @@
         <div class="flex-1 overflow-y-auto custom-scrollbar p-6">
             
             <!-- PANEL: CONTENT -->
-            <div id="panel-content">
+            <div id="panel-content" class="space-y-6">
                 
                 <!-- FOTO -->
-                <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 mb-6">
-                    <label class="text-xs font-bold text-slate-400 uppercase mb-3 block">Foto Profilo</label>
+                <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50">
                     <div class="flex items-center gap-4">
-                        <div id="preview-photo" class="w-16 h-16 rounded-full bg-slate-700 border-2 border-slate-600 flex items-center justify-center overflow-hidden shrink-0">
+                        <div id="preview-photo" class="w-16 h-16 rounded-full bg-slate-700 border-2 border-slate-600 flex items-center justify-center overflow-hidden shrink-0 shadow-lg">
                             <i class="fa-solid fa-user text-slate-500 text-2xl"></i>
                         </div>
                         <div class="flex flex-col gap-2">
                             <input type="file" id="upload-photo" accept="image/*" style="display: none;" onchange="cvApp.uploadPhoto(this)">
-                            <button onclick="document.getElementById('upload-photo').click()" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold px-3 py-1.5 rounded transition-colors">
-                                Carica Foto
+                            <button onclick="document.getElementById('upload-photo').click()" class="text-blue-400 hover:text-blue-300 text-xs font-bold flex items-center gap-1">
+                                <i class="fa-solid fa-camera"></i> Cambia Foto
                             </button>
                             <button onclick="cvApp.removePhoto()" class="text-xs text-red-400 hover:text-red-300 text-left">Rimuovi</button>
                         </div>
@@ -179,95 +196,110 @@
                 </div>
 
                 <!-- INFO -->
-                <div class="space-y-3 mb-6">
-                    <input type="text" data-model="personal.name" placeholder="Nome e Cognome" class="w-full bg-slate-800 border border-slate-700 text-white rounded p-3 text-sm focus:border-blue-500 focus:outline-none placeholder-slate-500">
-                    <input type="text" data-model="personal.title" placeholder="Titolo Professionale" class="w-full bg-slate-800 border border-slate-700 text-white rounded p-3 text-sm focus:border-blue-500 focus:outline-none placeholder-slate-500">
-                    <div class="grid grid-cols-2 gap-3">
-                        <input type="text" data-model="personal.email" placeholder="Email" class="bg-slate-800 border border-slate-700 text-white rounded p-3 text-sm focus:border-blue-500 focus:outline-none placeholder-slate-500">
-                        <input type="text" data-model="personal.phone" placeholder="Telefono" class="bg-slate-800 border border-slate-700 text-white rounded p-3 text-sm focus:border-blue-500 focus:outline-none placeholder-slate-500">
+                <div class="space-y-3">
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Nome Completo</label>
+                        <input type="text" data-model="personal.name" class="w-full bg-slate-900 border border-slate-700 text-white rounded-lg p-3 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none placeholder-slate-600 transition-all">
                     </div>
-                    <input type="text" data-model="personal.location" placeholder="Indirizzo / Città" class="w-full bg-slate-800 border border-slate-700 text-white rounded p-3 text-sm focus:border-blue-500 focus:outline-none placeholder-slate-500">
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Titolo Professionale</label>
+                        <input type="text" data-model="personal.title" class="w-full bg-slate-900 border border-slate-700 text-white rounded-lg p-3 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none placeholder-slate-600">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <input type="text" data-model="personal.email" placeholder="Email" class="bg-slate-900 border border-slate-700 text-white rounded-lg p-3 text-sm focus:border-blue-500 focus:outline-none placeholder-slate-600">
+                        <input type="text" data-model="personal.phone" placeholder="Telefono" class="bg-slate-900 border border-slate-700 text-white rounded-lg p-3 text-sm focus:border-blue-500 focus:outline-none placeholder-slate-600">
+                    </div>
+                    <input type="text" data-model="personal.location" placeholder="Indirizzo / Città" class="w-full bg-slate-900 border border-slate-700 text-white rounded-lg p-3 text-sm focus:border-blue-500 focus:outline-none placeholder-slate-600">
                 </div>
 
-                <div class="mb-6">
-                    <label class="text-xs font-bold text-slate-400 uppercase mb-2 block">Profilo</label>
-                    <textarea data-model="personal.summary" rows="4" class="w-full bg-slate-800 border border-slate-700 text-white rounded p-3 text-sm focus:border-blue-500 focus:outline-none placeholder-slate-500 resize-none" placeholder="Breve descrizione..."></textarea>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase ml-1 mb-1 block">Profilo Professionale</label>
+                    <textarea data-model="personal.summary" rows="4" class="w-full bg-slate-900 border border-slate-700 text-white rounded-lg p-3 text-sm focus:border-blue-500 focus:outline-none placeholder-slate-600 resize-none" placeholder="Descrivi le tue ambizioni..."></textarea>
                 </div>
 
                 <!-- LISTE -->
-                <div class="mb-6">
+                <div class="bg-slate-800/30 p-4 rounded-xl border border-slate-700/50">
                     <div class="flex justify-between items-center mb-3">
-                        <label class="text-xs font-bold text-slate-400 uppercase block">Esperienza</label>
-                        <button onclick="cvApp.addItem('experience')" class="text-xs text-blue-400 hover:text-blue-300 font-bold">+ Aggiungi</button>
+                        <label class="text-xs font-bold text-slate-400 uppercase flex items-center gap-2"><i class="fa-solid fa-briefcase"></i> Esperienza</label>
+                        <button onclick="cvApp.addItem('experience')" class="text-xs bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 hover:text-blue-300 font-bold px-2 py-1 rounded transition-colors">+ Aggiungi</button>
                     </div>
                     <div id="list-experience" class="space-y-3"></div>
                 </div>
 
-                <div class="mb-6">
+                <div class="bg-slate-800/30 p-4 rounded-xl border border-slate-700/50">
                     <div class="flex justify-between items-center mb-3">
-                        <label class="text-xs font-bold text-slate-400 uppercase block">Istruzione</label>
-                        <button onclick="cvApp.addItem('education')" class="text-xs text-blue-400 hover:text-blue-300 font-bold">+ Aggiungi</button>
+                        <label class="text-xs font-bold text-slate-400 uppercase flex items-center gap-2"><i class="fa-solid fa-graduation-cap"></i> Istruzione</label>
+                        <button onclick="cvApp.addItem('education')" class="text-xs bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 hover:text-blue-300 font-bold px-2 py-1 rounded transition-colors">+ Aggiungi</button>
                     </div>
                     <div id="list-education" class="space-y-3"></div>
                 </div>
 
                 <div>
-                    <label class="text-xs font-bold text-slate-400 uppercase mb-2 block">Competenze</label>
-                    <textarea data-model="skills" rows="3" class="w-full bg-slate-800 border border-slate-700 text-white rounded p-3 text-sm focus:border-blue-500 focus:outline-none placeholder-slate-500 resize-none" placeholder="Separale con una virgola..."></textarea>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase ml-1 mb-1 block">Competenze & Lingue</label>
+                    <textarea data-model="skills" rows="3" class="w-full bg-slate-900 border border-slate-700 text-white rounded-lg p-3 text-sm focus:border-blue-500 focus:outline-none placeholder-slate-600 resize-none" placeholder="Inglese C1, Photoshop, React..."></textarea>
                 </div>
             </div>
 
             <!-- PANEL: DESIGN -->
-            <div id="panel-design" style="display: none;">
+            <div id="panel-design" style="display: none;" class="space-y-8">
                 
                 <!-- LAYOUT -->
-                <div class="mb-6">
-                    <label class="text-xs font-bold text-slate-400 uppercase mb-3 block">Scegli Layout</label>
-                    <div class="grid grid-cols-2 gap-3">
-                        <button onclick="cvApp.setLayout('sidebarLeft', this)" class="tpl-card active bg-slate-800 border-2 border-blue-500 rounded-lg p-3 text-center text-white hover:bg-slate-700 transition-all">
-                            <div class="h-10 w-full bg-slate-700 rounded mb-2 flex overflow-hidden border border-slate-600"><div class="w-1/3 bg-slate-500 h-full"></div><div class="w-2/3 bg-transparent h-full"></div></div>
-                            <span class="text-xs font-bold">Moderno</span>
+                <div>
+                    <label class="text-xs font-bold text-slate-400 uppercase mb-3 block">Layout & Struttura</label>
+                    <div class="grid grid-cols-3 gap-3">
+                        <button onclick="cvApp.setLayout('sidebarLeft', this)" class="tpl-card active bg-slate-800 border-2 border-blue-500 rounded-xl p-3 text-center text-white hover:bg-slate-700 transition-all group">
+                            <div class="h-12 w-full bg-slate-700 rounded-md mb-2 flex overflow-hidden border border-slate-600 group-hover:border-blue-400/50"><div class="w-1/3 bg-blue-500/50 h-full"></div><div class="w-2/3 bg-transparent h-full"></div></div>
+                            <span class="text-[10px] font-bold uppercase tracking-wider">Modern</span>
                         </button>
-                        <button onclick="cvApp.setLayout('classic', this)" class="tpl-card bg-slate-800 border-2 border-transparent rounded-lg p-3 text-center text-slate-400 hover:bg-slate-700 transition-all">
-                            <div class="h-10 w-full bg-slate-700 rounded mb-2 flex flex-col border border-slate-600"><div class="w-full h-3 bg-slate-500 border-b border-slate-600"></div></div>
-                            <span class="text-xs font-bold">Classico</span>
+                        <button onclick="cvApp.setLayout('classic', this)" class="tpl-card bg-slate-800 border-2 border-transparent rounded-xl p-3 text-center text-slate-400 hover:bg-slate-700 transition-all group">
+                            <div class="h-12 w-full bg-slate-700 rounded-md mb-2 flex flex-col border border-slate-600 group-hover:border-slate-500"><div class="w-full h-3 bg-slate-500/50 border-b border-slate-600"></div></div>
+                            <span class="text-[10px] font-bold uppercase tracking-wider">Classic</span>
                         </button>
-                        <button onclick="cvApp.setLayout('minimal', this)" class="tpl-card bg-slate-800 border-2 border-transparent rounded-lg p-3 text-center text-slate-400 hover:bg-slate-700 transition-all">
-                            <div class="h-10 w-full bg-slate-700 rounded mb-2 flex border border-slate-600"><div class="w-full h-full border-l-4 border-slate-500 ml-2"></div></div>
-                            <span class="text-xs font-bold">Minimal</span>
+                        <button onclick="cvApp.setLayout('minimal', this)" class="tpl-card bg-slate-800 border-2 border-transparent rounded-xl p-3 text-center text-slate-400 hover:bg-slate-700 transition-all group">
+                            <div class="h-12 w-full bg-slate-700 rounded-md mb-2 flex border border-slate-600 group-hover:border-slate-500"><div class="w-full h-full border-l-4 border-slate-500/50 ml-2"></div></div>
+                            <span class="text-[10px] font-bold uppercase tracking-wider">Minimal</span>
                         </button>
+                    </div>
+                </div>
+
+                <!-- CARTA -->
+                <div>
+                    <label class="text-xs font-bold text-slate-400 uppercase mb-3 block">Formato Carta (Stampa)</label>
+                    <div class="flex gap-2 bg-slate-900 p-1 rounded-lg border border-slate-700">
+                        <button onclick="cvApp.setPaper('A4')" id="btn-a4" class="flex-1 py-1.5 text-xs font-bold text-white bg-slate-700 rounded shadow-sm">A4</button>
+                        <button onclick="cvApp.setPaper('Letter')" id="btn-letter" class="flex-1 py-1.5 text-xs font-bold text-slate-400 hover:text-white">Letter</button>
                     </div>
                 </div>
                 
                 <!-- COLORI -->
-                <div class="mb-6">
-                    <label class="text-xs font-bold text-slate-400 uppercase mb-3 block">Colori</label>
-                    <div class="bg-slate-800 p-3 rounded-lg border border-slate-700 space-y-3">
+                <div>
+                    <label class="text-xs font-bold text-slate-400 uppercase mb-3 block">Personalizzazione Colori</label>
+                    <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 space-y-4">
                         <div class="flex justify-between items-center">
-                            <span class="text-sm text-slate-300">Colore Principale</span>
-                            <div class="relative w-8 h-8 rounded-full overflow-hidden border-2 border-slate-500">
-                                <input type="color" data-model="config.color" oninput="cvApp.setConfig('color', this.value)" class="absolute -top-2 -left-2 w-16 h-16 cursor-pointer">
+                            <span class="text-sm text-slate-300 font-medium">Accenti (Titoli)</span>
+                            <div class="relative w-8 h-8 rounded-full overflow-hidden border-2 border-white ring-2 ring-slate-700 cursor-pointer shadow-sm hover:scale-110 transition-transform">
+                                <input type="color" data-model="config.color" oninput="cvApp.setConfig('color', this.value)" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] h-[150%] p-0 m-0 border-none cursor-pointer">
                             </div>
                         </div>
                         <div class="flex justify-between items-center">
-                            <span class="text-sm text-slate-300">Sfondo Sidebar</span>
-                            <div class="relative w-8 h-8 rounded-full overflow-hidden border-2 border-slate-500">
-                                <input type="color" data-model="config.sidebarBg" oninput="cvApp.setConfig('sidebarBg', this.value)" class="absolute -top-2 -left-2 w-16 h-16 cursor-pointer">
+                            <span class="text-sm text-slate-300 font-medium">Sfondo Laterale</span>
+                            <div class="relative w-8 h-8 rounded-full overflow-hidden border-2 border-white ring-2 ring-slate-700 cursor-pointer shadow-sm hover:scale-110 transition-transform">
+                                <input type="color" data-model="config.sidebarBg" oninput="cvApp.setConfig('sidebarBg', this.value)" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] h-[150%] p-0 m-0 border-none cursor-pointer">
                             </div>
                         </div>
                         <div class="flex justify-between items-center">
-                            <span class="text-sm text-slate-300">Colore Testo</span>
-                            <div class="relative w-8 h-8 rounded-full overflow-hidden border-2 border-slate-500">
-                                <input type="color" data-model="config.textColor" oninput="cvApp.setConfig('textColor', this.value)" class="absolute -top-2 -left-2 w-16 h-16 cursor-pointer">
+                            <span class="text-sm text-slate-300 font-medium">Testo Sidebar</span>
+                            <div class="relative w-8 h-8 rounded-full overflow-hidden border-2 border-white ring-2 ring-slate-700 cursor-pointer shadow-sm hover:scale-110 transition-transform">
+                                <input type="color" data-model="config.sideText" oninput="cvApp.setConfig('sideText', this.value)" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] h-[150%] p-0 m-0 border-none cursor-pointer">
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- TIPOGRAFIA -->
-                <div class="mb-6">
+                <div>
                     <label class="text-xs font-bold text-slate-400 uppercase mb-3 block">Carattere</label>
-                    <select data-model="config.font" onchange="cvApp.setConfig('font', this.value)" class="w-full bg-slate-800 border border-slate-700 text-white rounded p-3 text-sm focus:border-blue-500 focus:outline-none">
+                    <select data-model="config.font" onchange="cvApp.setConfig('font', this.value)" class="w-full bg-slate-900 border border-slate-700 text-white rounded-lg p-3 text-sm focus:border-blue-500 focus:outline-none">
                         <option value="Inter, sans-serif">Inter (Standard)</option>
                         <option value="Poppins, sans-serif">Poppins (Moderno)</option>
                         <option value="Merriweather, serif">Merriweather (Elegante)</option>
@@ -286,19 +318,19 @@
         </div>
 
         <!-- FOOTER -->
-        <div class="p-4 bg-slate-900 border-t border-slate-700 print-hidden">
-            <button onclick="window.print()" class="w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg font-bold text-lg hover:from-blue-500 hover:to-indigo-500 transition-all shadow-lg flex items-center justify-center gap-2 transform hover:-translate-y-0.5">
-                <i class="fa-solid fa-download"></i> Scarica PDF
+        <div class="p-5 bg-dark/90 backdrop-blur border-t border-slate-700 print-hidden">
+            <button onclick="window.print()" class="w-full px-4 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-bold text-lg hover:from-blue-500 hover:to-indigo-500 transition-all shadow-glow flex items-center justify-center gap-2 transform hover:-translate-y-0.5 active:translate-y-0">
+                <i class="fa-solid fa-file-pdf"></i> Scarica PDF
             </button>
         </div>
     </div>
 
     <!-- PREVIEW (DESTRA) -->
-    <div id="preview-container" class="flex-1 bg-slate-100 relative overflow-hidden flex justify-center items-start pt-10 px-4 print-hidden">
+    <div id="preview-container" class="flex-1 bg-slate-900 relative overflow-hidden flex justify-center items-start pt-10 px-4 print-hidden bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:16px_16px]">
         
         <!-- Zoom Badge -->
-        <div class="absolute top-4 right-4 bg-slate-800/80 text-white text-xs font-medium px-3 py-1.5 rounded-full backdrop-blur-sm shadow-sm flex items-center gap-2 z-10">
-            <i class="fa-solid fa-magnifying-glass text-slate-400"></i> <span id="zoom-level">100%</span>
+        <div class="absolute top-6 right-6 bg-slate-800/80 text-white text-xs font-bold px-3 py-1.5 rounded-full backdrop-blur-sm border border-slate-700 shadow-lg flex items-center gap-2 z-10">
+            <i class="fa-solid fa-magnifying-glass text-blue-400"></i> <span id="zoom-level">100%</span>
         </div>
 
         <!-- CV CONTAINER (A4) -->
@@ -314,12 +346,12 @@
 <script>
     const cvApp = {
         data: {
-            personal: { name: 'Mario Rossi', title: 'Digital Marketing Manager', email: 'mario.rossi@email.it', phone: '333 1234567', location: 'Milano, Italia', summary: 'Professionista con oltre 5 anni di esperienza nella gestione di campagne digitali e team creativi. Appassionato di dati, ROI e strategie di crescita innovative.' },
-            experience: [{ id: 1, role: 'Senior Manager', company: 'Tech Solutions', start: '2020', end: 'Oggi', desc: 'Gestione budget 50k/mese. Coordinamento team di 5 persone.' }],
-            education: [{ id: 1, degree: 'Laurea in Economia', school: 'Università Bocconi', year: '2019' }],
-            skills: 'SEO, SEM, Google Analytics, Leadership, Inglese C1',
+            personal: { name: 'Giulia Bianchi', title: 'Senior UX Designer', email: 'giulia.ux@example.com', phone: '+39 340 1234567', location: 'Roma, Italia', summary: 'Designer creativa con passione per l\'accessibilità e le interfacce intuitive. Oltre 6 anni di esperienza nella creazione di prodotti digitali centrati sull\'utente.' },
+            experience: [{ id: 1, role: 'Lead Designer', company: 'Creative Studio', start: '2021', end: 'Presente', desc: 'Guido un team di 4 designer. Ho ridisegnato la UX della piattaforma principale aumentando la retention del 25%.' }],
+            education: [{ id: 1, degree: 'Laurea Magistrale in Design', school: 'Politecnico di Milano', year: '2020' }],
+            skills: 'Figma, Adobe XD, HTML/CSS, User Research, Prototyping, Agile',
             photo: null,
-            config: { template: 'sidebarLeft', color: '#2563eb', font: 'Inter, sans-serif', scale: 1, sidebarBg: '#1e293b', textColor: '#1e293b' }
+            config: { template: 'sidebarLeft', color: '#3b82f6', font: 'Inter, sans-serif', scale: 1, sidebarBg: '#1e293b', sideText: '#ffffff', paper: 'A4' }
         },
         
         init: function() {
@@ -327,6 +359,7 @@
             this.bindInputEvents();
             this.renderLists();
             this.updatePhotoPreview();
+            this.updatePaperUI();
             this.render();
             
             // Auto-Zoom (Responsive)
@@ -336,22 +369,57 @@
             setTimeout(() => this.autoScale(), 200);
         },
 
-        // --- GESTIONE DATI ---
+        // --- GESTIONE DATI (Export/Import) ---
         loadData: function() {
-            const saved = localStorage.getItem('cv_plat_js_v2');
+            const saved = localStorage.getItem('cv_diamond_v1');
             if (saved) {
                 try {
                     const loaded = JSON.parse(saved);
+                    // Merge profondo per sicurezza
                     this.data = {...this.data, ...loaded, config: {...this.data.config, ...loaded.config}};
                 } catch(e) {}
             }
         },
-        saveData: function() { localStorage.setItem('cv_plat_js_v2', JSON.stringify(this.data)); },
+        saveData: function() { localStorage.setItem('cv_diamond_v1', JSON.stringify(this.data)); },
+        
         resetData: function() {
-            if(confirm('Cancellare tutto?')) {
-                localStorage.removeItem('cv_plat_js_v2');
+            if(confirm('Sei sicuro? Tutti i dati verranno cancellati.')) {
+                localStorage.removeItem('cv_diamond_v1');
                 location.reload();
             }
+        },
+
+        exportData: function() {
+            const dataStr = JSON.stringify(this.data, null, 2);
+            const blob = new Blob([dataStr], {type: "application/json"});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `CV_${this.data.personal.name.replace(/\s+/g, '_')}.json`;
+            a.click();
+        },
+
+        importData: function(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    this.data = {...this.data, ...imported};
+                    this.saveData();
+                    // Reload UI
+                    this.bindInputEvents(); // Refresh input values
+                    this.renderLists();
+                    this.updatePhotoPreview();
+                    this.render();
+                    alert('Dati caricati con successo!');
+                } catch (err) {
+                    alert('Errore nel file JSON.');
+                }
+            };
+            reader.readAsText(file);
+            input.value = ''; // Reset input
         },
 
         bindInputEvents: function() {
@@ -359,6 +427,7 @@
                 const [p, k] = input.getAttribute('data-model').split('.');
                 input.value = k ? (this.data[p][k] || '') : (this.data[p] || '');
                 
+                // Remove old listeners to avoid duplicates on re-bind
                 input.oninput = (e) => {
                     if (k) this.data[p][k] = e.target.value;
                     else this.data[p] = e.target.value;
@@ -368,6 +437,7 @@
         },
 
         setConfig: function(k, v) { this.data.config[k] = v; this.saveData(); this.render(); },
+        
         setLayout: function(tpl, btn) {
             this.data.config.template = tpl;
             document.querySelectorAll('.tpl-card').forEach(b => {
@@ -378,10 +448,32 @@
             this.saveData(); this.render();
         },
 
+        setPaper: function(size) {
+            this.data.config.paper = size;
+            this.updatePaperUI();
+            this.saveData();
+            this.render();
+            this.autoScale(); // Re-calc zoom
+        },
+
+        updatePaperUI: function() {
+            const size = this.data.config.paper || 'A4';
+            const btnA4 = document.getElementById('btn-a4');
+            const btnLet = document.getElementById('btn-letter');
+            
+            if(size === 'A4') {
+                btnA4.classList.add('bg-slate-700', 'text-white'); btnA4.classList.remove('text-slate-400');
+                btnLet.classList.remove('bg-slate-700', 'text-white'); btnLet.classList.add('text-slate-400');
+            } else {
+                btnLet.classList.add('bg-slate-700', 'text-white'); btnLet.classList.remove('text-slate-400');
+                btnA4.classList.remove('bg-slate-700', 'text-white'); btnA4.classList.add('text-slate-400');
+            }
+        },
+
         // --- LISTE ---
         addItem: function(type) {
             const item = type === 'experience' 
-                ? { id: Date.now(), role: 'Ruolo', company: 'Azienda', start: '', end: '', desc: '' }
+                ? { id: Date.now(), role: 'Nuovo Ruolo', company: 'Azienda', start: '', end: '', desc: '' }
                 : { id: Date.now(), degree: 'Titolo', school: 'Istituto', year: '' };
             this.data[type].unshift(item);
             this.saveData(); this.renderLists(); this.render();
@@ -399,24 +491,24 @@
         },
         renderLists: function() {
             document.getElementById('list-experience').innerHTML = this.data.experience.map(i => `
-                <div class="bg-slate-800 p-3 rounded border border-slate-700 relative group">
-                    <button onclick="cvApp.removeItem('experience', ${i.id})" class="absolute top-2 right-2 text-slate-500 hover:text-red-400"><i class="fa-solid fa-trash"></i></button>
-                    <input class="bg-transparent text-white font-bold w-full mb-1 text-sm focus:outline-none" value="${i.role}" oninput="cvApp.updateList('experience', ${i.id}, 'role', this.value)" placeholder="Ruolo">
-                    <input class="bg-transparent text-slate-400 w-full text-xs mb-2 focus:outline-none" value="${i.company}" oninput="cvApp.updateList('experience', ${i.id}, 'company', this.value)" placeholder="Azienda">
-                    <div class="flex gap-2 mb-2">
-                        <input class="bg-slate-700 text-white rounded text-xs p-1 w-1/2 focus:outline-none" value="${i.start}" oninput="cvApp.updateList('experience', ${i.id}, 'start', this.value)" placeholder="Dal">
-                        <input class="bg-slate-700 text-white rounded text-xs p-1 w-1/2 focus:outline-none" value="${i.end}" oninput="cvApp.updateList('experience', ${i.id}, 'end', this.value)" placeholder="Al">
+                <div class="bg-slate-900 p-4 rounded-lg border border-slate-700 relative group transition-all hover:border-blue-500/50">
+                    <button onclick="cvApp.removeItem('experience', ${i.id})" class="absolute top-3 right-3 text-slate-600 hover:text-red-400 transition-colors"><i class="fa-solid fa-trash-can"></i></button>
+                    <input class="bg-transparent text-white font-bold w-full mb-1.5 text-sm focus:outline-none border-b border-transparent focus:border-blue-500" value="${i.role}" oninput="cvApp.updateList('experience', ${i.id}, 'role', this.value)" placeholder="Ruolo">
+                    <input class="bg-transparent text-blue-400 w-full text-xs mb-3 focus:outline-none" value="${i.company}" oninput="cvApp.updateList('experience', ${i.id}, 'company', this.value)" placeholder="Azienda">
+                    <div class="flex gap-2 mb-3">
+                        <input class="bg-slate-800 text-white rounded text-xs p-1.5 w-1/2 focus:outline-none border border-slate-700 focus:border-blue-500" value="${i.start}" oninput="cvApp.updateList('experience', ${i.id}, 'start', this.value)" placeholder="Dal">
+                        <input class="bg-slate-800 text-white rounded text-xs p-1.5 w-1/2 focus:outline-none border border-slate-700 focus:border-blue-500" value="${i.end}" oninput="cvApp.updateList('experience', ${i.id}, 'end', this.value)" placeholder="Al">
                     </div>
-                    <textarea class="bg-slate-700 text-white rounded text-xs p-2 w-full resize-none focus:outline-none" rows="2" oninput="cvApp.updateList('experience', ${i.id}, 'desc', this.value)" placeholder="Descrizione...">${i.desc}</textarea>
+                    <textarea class="bg-slate-800 text-slate-300 rounded text-xs p-2 w-full resize-none focus:outline-none border border-slate-700 focus:border-blue-500" rows="2" oninput="cvApp.updateList('experience', ${i.id}, 'desc', this.value)" placeholder="Descrizione...">${i.desc}</textarea>
                 </div>
             `).join('');
             
             document.getElementById('list-education').innerHTML = this.data.education.map(i => `
-                <div class="bg-slate-800 p-3 rounded border border-slate-700 relative group">
-                    <button onclick="cvApp.removeItem('education', ${i.id})" class="absolute top-2 right-2 text-slate-500 hover:text-red-400"><i class="fa-solid fa-trash"></i></button>
-                    <input class="bg-transparent text-white font-bold w-full mb-1 text-sm focus:outline-none" value="${i.degree}" oninput="cvApp.updateList('education', ${i.id}, 'degree', this.value)" placeholder="Titolo">
-                    <input class="bg-transparent text-slate-400 w-full text-xs mb-2 focus:outline-none" value="${i.school}" oninput="cvApp.updateList('education', ${i.id}, 'school', this.value)" placeholder="Istituto">
-                    <input class="bg-slate-700 text-white rounded text-xs p-1 w-full focus:outline-none" value="${i.year}" oninput="cvApp.updateList('education', ${i.id}, 'year', this.value)" placeholder="Anno">
+                <div class="bg-slate-900 p-4 rounded-lg border border-slate-700 relative group transition-all hover:border-blue-500/50">
+                    <button onclick="cvApp.removeItem('education', ${i.id})" class="absolute top-3 right-3 text-slate-600 hover:text-red-400 transition-colors"><i class="fa-solid fa-trash-can"></i></button>
+                    <input class="bg-transparent text-white font-bold w-full mb-1.5 text-sm focus:outline-none border-b border-transparent focus:border-blue-500" value="${i.degree}" oninput="cvApp.updateList('education', ${i.id}, 'degree', this.value)" placeholder="Titolo">
+                    <input class="bg-transparent text-blue-400 w-full text-xs mb-2 focus:outline-none" value="${i.school}" oninput="cvApp.updateList('education', ${i.id}, 'school', this.value)" placeholder="Istituto">
+                    <input class="bg-slate-800 text-white rounded text-xs p-1.5 w-full focus:outline-none border border-slate-700 focus:border-blue-500" value="${i.year}" oninput="cvApp.updateList('education', ${i.id}, 'year', this.value)" placeholder="Anno">
                 </div>
             `).join('');
         },
@@ -442,147 +534,222 @@
             const c = d.config;
             const target = document.getElementById('cv-render-target');
             
+            // Imposta Dimensione Foglio
+            if (c.paper === 'Letter') {
+                target.style.width = '215.9mm';
+                target.style.minHeight = '279.4mm';
+            } else {
+                target.style.width = '210mm';
+                target.style.minHeight = '297mm';
+            }
+
             // Imposta variabili CSS
             target.style.setProperty('--color-primary', c.color);
             target.style.setProperty('--color-side-bg', c.sidebarBg);
-            target.style.setProperty('--color-side-text', '#ffffff');
+            target.style.setProperty('--color-side-text', c.sideText || '#ffffff');
             target.style.setProperty('--color-text', c.textColor);
             target.style.fontFamily = c.font;
             target.style.fontSize = `${14 * c.scale}px`;
 
-            let html = '';
+            // Reset classi
+            target.className = `cv-page ${c.font.includes('Poppins') ? 'font-poppins' : c.font.includes('Merriweather') ? 'font-serif' : c.font.includes('Roboto Mono') ? 'font-mono' : 'font-sans'}`;
             
-            // 1. MODERN (Sidebar Left)
+            // Aggiungi classe speciale per il layout Moderno per gestire il background gradient
+            if(c.template === 'sidebarLeft') target.classList.add('cv-sidebar-left-layout');
+            else target.classList.remove('cv-sidebar-left-layout');
+
+            let html = '';
+            const skillsArr = d.skills.split(',').filter(s => s.trim() !== '');
+            
+            // 1. MODERN (Sidebar Left) - Il gradiente è gestito via CSS su #cv-render-target
             if (c.template === 'sidebarLeft') {
                 html = `
-                <div class="flex h-full">
-                    <div class="w-[35%] bg-[var(--color-side-bg)] text-[var(--color-side-text)] p-8 flex flex-col print:w-[35%] print:h-full">
-                        <div class="text-center mb-8">
-                            ${d.photo ? `<div class="w-32 h-32 mx-auto mb-4 rounded-full bg-cover bg-center border-4 border-white/20" style="background-image:url('${d.photo}')"></div>` : `<div class="w-24 h-24 mx-auto mb-4 rounded-full bg-white/20 flex items-center justify-center text-3xl font-bold">${d.personal.name.charAt(0)}</div>`}
-                            <h1 class="text-2xl font-bold leading-tight mb-2 break-words text-white">${d.personal.name}</h1>
-                            <p class="opacity-80 text-sm uppercase tracking-wider text-white">${d.personal.title}</p>
+                <div class="flex h-full min-h-[inherit]">
+                    <div class="w-[35%] text-[var(--color-side-text)] p-8 flex flex-col shrink-0">
+                        <div class="text-center mb-10">
+                            ${d.photo ? `<div class="w-36 h-36 mx-auto mb-5 rounded-full bg-cover bg-center border-[5px] border-white/20 shadow-xl" style="background-image:url('${d.photo}')"></div>` : `<div class="w-24 h-24 mx-auto mb-4 rounded-full bg-white/20 flex items-center justify-center text-3xl font-bold shadow-inner">${d.personal.name.charAt(0)}</div>`}
+                            <h1 class="text-2xl font-bold leading-tight mb-2 break-words drop-shadow-md">${d.personal.name}</h1>
+                            <p class="opacity-90 text-sm uppercase tracking-wider font-medium">${d.personal.title}</p>
                         </div>
-                        <div class="space-y-3 text-sm mb-8 opacity-90 text-white">
-                            <div class="flex items-center gap-3"><i class="fa-solid fa-envelope w-4"></i> <span class="break-all">${d.personal.email}</span></div>
-                            <div class="flex items-center gap-3"><i class="fa-solid fa-phone w-4"></i> ${d.personal.phone}</div>
-                            <div class="flex items-center gap-3"><i class="fa-solid fa-location-dot w-4"></i> ${d.personal.location}</div>
+
+                        <div class="space-y-4 text-sm mb-10 opacity-95">
+                            <div class="text-xs font-bold uppercase tracking-widest border-b border-white/30 pb-2 mb-4 opacity-80">Contatti</div>
+                            <div class="flex items-center gap-3"><i class="fa-solid fa-envelope w-4"></i> <span class="break-all font-light">${d.personal.email}</span></div>
+                            <div class="flex items-center gap-3"><i class="fa-solid fa-phone w-4"></i> <span class="font-light">${d.personal.phone}</span></div>
+                            <div class="flex items-center gap-3"><i class="fa-solid fa-location-dot w-4"></i> <span class="font-light">${d.personal.location}</span></div>
                         </div>
+
                         <div class="mt-auto">
-                            <h3 class="text-xs font-bold uppercase tracking-widest border-b border-white/20 pb-2 mb-3 text-white opacity-80">Skills</h3>
-                            <div class="flex flex-wrap gap-2 text-white">
-                                ${d.skills.split(',').filter(s=>s.trim()).map(s => `<span class="bg-white/10 px-2 py-1 rounded text-xs">${s.trim()}</span>`).join('')}
+                            <div class="text-xs font-bold uppercase tracking-widest border-b border-white/30 pb-2 mb-4 opacity-80">Competenze</div>
+                            <div class="flex flex-wrap gap-2">
+                                ${skillsArr.map(s => `<span class="bg-white/10 px-2.5 py-1 rounded-md text-xs font-medium backdrop-blur-sm">${s.trim()}</span>`).join('')}
                             </div>
                         </div>
                     </div>
+
+                    <!-- Main Content -->
                     <div class="w-[65%] p-10 bg-white text-[var(--color-text)]">
-                        <section class="mb-8">
-                            <h3 class="uppercase text-lg font-bold border-b-2 pb-2 mb-4 tracking-widest text-[var(--color-primary)]" style="border-color: color-mix(in srgb, var(--color-primary), white 80%);">Profilo</h3>
-                            <p class="opacity-80 text-justify leading-relaxed">${d.personal.summary}</p>
+                        <section class="mb-10">
+                            <h3 class="uppercase text-lg font-bold border-b-[3px] pb-2 mb-5 tracking-widest text-[var(--color-primary)] flex items-center gap-2" style="border-color: ${c.color}20;">
+                                <i class="fa-solid fa-user text-sm opacity-50"></i> Profilo
+                            </h3>
+                            <p class="opacity-80 text-justify leading-relaxed text-[0.95em]">${d.personal.summary}</p>
                         </section>
-                        <section class="mb-8">
-                            <h3 class="uppercase text-lg font-bold border-b-2 pb-2 mb-6 tracking-widest text-[var(--color-primary)]" style="border-color: color-mix(in srgb, var(--color-primary), white 80%);">Esperienza</h3>
-                            <div class="space-y-6">
+
+                        <section class="mb-10">
+                            <h3 class="uppercase text-lg font-bold border-b-[3px] pb-2 mb-6 tracking-widest text-[var(--color-primary)] flex items-center gap-2" style="border-color: ${c.color}20;">
+                                <i class="fa-solid fa-briefcase text-sm opacity-50"></i> Esperienza
+                            </h3>
+                            <div class="space-y-8">
                                 ${d.experience.map(e => `
-                                    <div class="relative pl-4 border-l-2 border-slate-200">
-                                        <div class="absolute -left-[5px] top-1.5 w-2 h-2 rounded-full bg-[var(--color-primary)]"></div>
+                                    <div class="relative pl-6 border-l-2 border-slate-100 group">
+                                        <div class="absolute -left-[5px] top-1.5 w-2 h-2 rounded-full bg-[var(--color-primary)] ring-4 ring-white"></div>
                                         <div class="flex justify-between items-baseline mb-1">
-                                            <h4 class="font-bold text-lg">${e.role}</h4>
-                                            <span class="text-xs font-bold bg-slate-100 px-2 py-1 rounded text-slate-600">${e.start} - ${e.end}</span>
+                                            <h4 class="font-bold text-lg leading-tight group-hover:text-[var(--color-primary)] transition-colors">${e.role}</h4>
+                                            <span class="text-xs font-bold bg-slate-50 px-2 py-1 rounded text-slate-500 border border-slate-100 whitespace-nowrap ml-2">${e.start} - ${e.end}</span>
                                         </div>
-                                        <div class="text-sm font-bold mb-2 text-[var(--color-primary)]">${e.company}</div>
-                                        <p class="opacity-80 text-sm whitespace-pre-line">${e.desc}</p>
+                                        <div class="text-sm font-bold mb-2 text-[var(--color-primary)] opacity-80">${e.company}</div>
+                                        <p class="opacity-70 text-sm whitespace-pre-line leading-relaxed">${e.desc}</p>
                                     </div>
                                 `).join('')}
                             </div>
                         </section>
+
                         <section>
-                            <h3 class="uppercase text-lg font-bold border-b-2 pb-2 mb-6 tracking-widest text-[var(--color-primary)]" style="border-color: color-mix(in srgb, var(--color-primary), white 80%);">Formazione</h3>
-                            <div class="space-y-4">
-                                ${d.education.map(e => `<div><div class="font-bold">${e.degree}</div><div class="text-sm opacity-70">${e.school}, ${e.year}</div></div>`).join('')}
+                            <h3 class="uppercase text-lg font-bold border-b-[3px] pb-2 mb-6 tracking-widest text-[var(--color-primary)] flex items-center gap-2" style="border-color: ${c.color}20;">
+                                <i class="fa-solid fa-graduation-cap text-sm opacity-50"></i> Formazione
+                            </h3>
+                            <div class="space-y-5">
+                                ${d.education.map(e => `
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <div class="font-bold text-[1em]">${e.degree}</div>
+                                            <div class="text-sm opacity-60 mt-0.5">${e.school}</div>
+                                        </div>
+                                        <div class="text-xs font-bold text-slate-400 bg-slate-50 px-2 py-1 rounded">${e.year}</div>
+                                    </div>
+                                `).join('')}
                             </div>
                         </section>
                     </div>
                 </div>`;
             } 
-            // 2. CLASSIC
+            /* --- TEMPLATE CLASSIC --- */
             else if (c.template === 'classic') {
                 html = `
                 <div class="p-12 h-full bg-white text-[var(--color-text)]">
-                    <div class="text-center border-b-2 border-slate-800 pb-8 mb-8">
-                        <h1 class="text-4xl font-bold uppercase tracking-wide mb-2">${d.personal.name}</h1>
-                        <p class="text-xl font-medium mb-4 text-[var(--color-primary)]">${d.personal.title}</p>
-                        <div class="flex justify-center gap-4 text-sm opacity-70 flex-wrap">
-                            <span>${d.personal.email}</span><span>•</span><span>${d.personal.phone}</span><span>•</span><span>${d.personal.location}</span>
+                    <div class="text-center border-b border-slate-200 pb-10 mb-10">
+                        ${d.photo ? `<div class="w-28 h-28 mx-auto mb-6 rounded-full bg-cover bg-center shadow-lg" style="background-image: url('${d.photo}');"></div>` : ''}
+                        <h1 class="text-5xl font-bold uppercase tracking-tight mb-3 text-slate-800">${d.personal.name}</h1>
+                        <p class="text-xl font-medium mb-6 text-[var(--color-primary)] tracking-wide">${d.personal.title}</p>
+                        <div class="flex justify-center gap-6 text-sm text-slate-500 font-medium">
+                            <span class="flex items-center gap-2"><i class="fa-solid fa-envelope opacity-50"></i> ${d.personal.email}</span>
+                            <span class="flex items-center gap-2"><i class="fa-solid fa-phone opacity-50"></i> ${d.personal.phone}</span>
+                            <span class="flex items-center gap-2"><i class="fa-solid fa-location-dot opacity-50"></i> ${d.personal.location}</span>
                         </div>
                     </div>
-                    <section class="mb-8">
-                        <h3 class="uppercase font-bold text-lg border-b mb-4 pb-1 text-[var(--color-primary)] border-slate-200">Profilo</h3>
-                        <p class="opacity-80 leading-relaxed">${d.personal.summary}</p>
+
+                    <section class="mb-10">
+                        <h3 class="uppercase font-bold text-sm tracking-widest border-b border-slate-200 mb-4 pb-2 text-slate-400">Profilo</h3>
+                        <p class="opacity-80 leading-relaxed text-justify">${d.personal.summary}</p>
                     </section>
-                    <section class="mb-8">
-                        <h3 class="uppercase font-bold text-lg border-b mb-6 pb-1 text-[var(--color-primary)] border-slate-200">Esperienza</h3>
+
+                    <section class="mb-10">
+                        <h3 class="uppercase font-bold text-sm tracking-widest border-b border-slate-200 mb-6 pb-2 text-slate-400">Esperienza Professionale</h3>
                         ${d.experience.map(e => `
-                            <div class="grid grid-cols-[1fr_3fr] gap-6 mb-6">
-                                <div class="text-right text-sm font-bold opacity-60 pt-1">${e.start} - ${e.end}</div>
+                            <div class="grid grid-cols-[1fr_3fr] gap-8 mb-8">
+                                <div class="text-right pt-1">
+                                    <div class="text-sm font-bold text-[var(--color-primary)]">${e.start} - ${e.end}</div>
+                                    <div class="text-xs text-slate-400 font-medium mt-1 uppercase">${e.location || 'Sede'}</div>
+                                </div>
                                 <div>
-                                    <h4 class="font-bold text-lg">${e.role}</h4>
-                                    <div class="text-sm italic mb-2 text-[var(--color-primary)]">${e.company}</div>
-                                    <p class="opacity-80 text-sm">${e.desc}</p>
+                                    <h4 class="font-bold text-xl text-slate-800 mb-1">${e.role}</h4>
+                                    <div class="text-sm font-semibold text-slate-500 mb-3">${e.company}</div>
+                                    <p class="opacity-80 text-sm leading-relaxed">${e.desc}</p>
                                 </div>
                             </div>
                         `).join('')}
                     </section>
-                    <div class="flex gap-8">
-                        <section class="flex-1">
-                            <h3 class="uppercase font-bold text-lg border-b mb-4 pb-1 text-[var(--color-primary)] border-slate-200">Istruzione</h3>
-                            ${d.education.map(e => `<div class="mb-4"><div class="font-bold">${e.degree}</div><div class="text-sm opacity-70">${e.school}, ${e.year}</div></div>`).join('')}
+
+                    <div class="grid grid-cols-2 gap-12">
+                        <section>
+                            <h3 class="uppercase font-bold text-sm tracking-widest border-b border-slate-200 mb-5 pb-2 text-slate-400">Istruzione</h3>
+                            ${d.education.map(e => `
+                                <div class="mb-5">
+                                    <div class="font-bold text-lg text-slate-800">${e.degree}</div>
+                                    <div class="text-sm text-[var(--color-primary)] font-medium mt-1">${e.school}</div>
+                                    <div class="text-xs text-slate-400 mt-1">${e.year}</div>
+                                </div>
+                            `).join('')}
                         </section>
-                        <section class="flex-1">
-                            <h3 class="uppercase font-bold text-lg border-b mb-4 pb-1 text-[var(--color-primary)] border-slate-200">Skills</h3>
-                            <p class="opacity-80 text-sm">${d.skills}</p>
+                        <section>
+                            <h3 class="uppercase font-bold text-sm tracking-widest border-b border-slate-200 mb-5 pb-2 text-slate-400">Competenze</h3>
+                            <div class="flex flex-wrap gap-2">
+                                ${skillsArr.map(s => `<span class="bg-slate-100 text-slate-600 px-3 py-1.5 rounded text-xs font-bold border border-slate-200">${s.trim()}</span>`).join('')}
+                            </div>
                         </section>
                     </div>
                 </div>`;
             }
-            // 3. MINIMAL
+            /* --- TEMPLATE MINIMAL --- */
             else {
                 html = `
-                <div class="p-12 h-full bg-white text-[var(--color-text)] grid grid-cols-[2fr_1fr] gap-12">
+                <div class="p-12 h-full bg-white text-[var(--color-text)] grid grid-cols-[3fr_1fr] gap-16">
                     <div>
-                        <h1 class="text-5xl font-light mb-2 leading-none">${d.personal.name}</h1>
-                        <p class="text-lg uppercase tracking-widest font-bold mb-10 text-[var(--color-primary)]">${d.personal.title}</p>
-                        <div class="mb-10 pl-6 border-l-4" style="border-color: var(--color-primary)">
-                            <p class="italic opacity-80">${d.personal.summary}</p>
+                        <div class="mb-16">
+                            <h1 class="text-6xl font-light mb-4 leading-none tracking-tight text-slate-900">${d.personal.name}</h1>
+                            <p class="text-xl uppercase tracking-[0.2em] font-bold text-[var(--color-primary)]">${d.personal.title}</p>
                         </div>
+
+                        <div class="mb-12 border-l-4 pl-6 py-1" style="border-color: var(--color-primary)">
+                            <p class="text-lg italic text-slate-600 font-serif leading-relaxed opacity-90">${d.personal.summary}</p>
+                        </div>
+
                         <section>
-                            <h3 class="text-sm font-bold uppercase opacity-50 tracking-widest mb-6">Esperienza</h3>
-                            <div class="space-y-8">
+                            <h3 class="text-xs font-bold uppercase text-slate-400 tracking-[0.2em] mb-8 flex items-center gap-4">
+                                Esperienza <span class="h-px bg-slate-200 flex-1"></span>
+                            </h3>
+                            <div class="space-y-10">
                                 ${d.experience.map(e => `
-                                    <div>
-                                        <h4 class="text-xl font-bold">${e.role}</h4>
-                                        <div class="text-sm font-bold mb-2 mt-1 text-[var(--color-primary)]">${e.company}</div>
-                                        <p class="opacity-80 text-sm leading-relaxed">${e.desc}</p>
+                                    <div class="group">
+                                        <h4 class="text-2xl font-bold text-slate-800 mb-1 group-hover:text-[var(--color-primary)] transition-colors">${e.role}</h4>
+                                        <div class="text-sm font-bold mb-4 text-[var(--color-primary)] opacity-80 flex items-center gap-2">
+                                            ${e.company} <span class="w-1 h-1 rounded-full bg-slate-300"></span> ${e.start} - ${e.end}
+                                        </div>
+                                        <p class="opacity-80 text-sm leading-7 text-slate-600">${e.desc}</p>
                                     </div>
                                 `).join('')}
                             </div>
                         </section>
                     </div>
-                    <div class="text-right pt-2">
-                        ${d.photo ? `<div class="w-32 h-32 ml-auto mb-8 bg-cover bg-center grayscale" style="background-image: url('${d.photo}')"></div>` : ''}
-                        <div class="mb-10 space-y-2 text-sm">
-                            <h3 class="text-xs font-bold uppercase opacity-50 tracking-widest mb-3">Contatti</h3>
-                            <div class="font-medium break-all">${d.personal.email}</div>
-                            <div class="font-medium">${d.personal.phone}</div>
-                            <div class="font-medium">${d.personal.location}</div>
+
+                    <div class="text-right pt-4">
+                        ${d.photo ? `<div class="w-32 h-32 ml-auto mb-10 bg-cover bg-center grayscale shadow-lg rounded-sm" style="background-image: url('${d.photo}')"></div>` : ''}
+
+                        <div class="mb-12">
+                            <h3 class="text-[10px] font-bold uppercase text-slate-400 tracking-widest mb-4 border-b border-slate-100 pb-2">Contatti</h3>
+                            <div class="space-y-2 text-sm font-medium text-slate-700">
+                                <div class="break-all hover:text-[var(--color-primary)] transition-colors cursor-pointer">${d.personal.email}</div>
+                                <div>${d.personal.phone}</div>
+                                <div>${d.personal.location}</div>
+                            </div>
                         </div>
-                        <div class="mb-10">
-                            <h3 class="text-xs font-bold uppercase opacity-50 tracking-widest mb-4 border-b pb-2">Istruzione</h3>
-                            ${d.education.map(e => `<div class="mb-4"><div class="font-bold">${e.degree}</div><div class="text-xs opacity-60">${e.school}</div><div class="text-xs opacity-40">${e.year}</div></div>`).join('')}
+
+                        <div class="mb-12">
+                            <h3 class="text-[10px] font-bold uppercase text-slate-400 tracking-widest mb-4 border-b border-slate-100 pb-2">Istruzione</h3>
+                            ${d.education.map(e => `
+                                <div class="mb-6">
+                                    <div class="font-bold text-slate-800 leading-tight">${e.degree}</div>
+                                    <div class="text-xs text-[var(--color-primary)] mt-1 font-bold">${e.school}</div>
+                                    <div class="text-xs text-slate-400 mt-1">${e.year}</div>
+                                </div>
+                            `).join('')}
                         </div>
+
                         <div>
-                            <h3 class="text-xs font-bold uppercase opacity-50 tracking-widest mb-4 border-b pb-2">Skills</h3>
+                            <h3 class="text-[10px] font-bold uppercase text-slate-400 tracking-widest mb-4 border-b border-slate-100 pb-2">Skills</h3>
                             <div class="flex flex-wrap justify-end gap-2">
-                                ${d.skills.split(',').filter(s=>s.trim()).map(s => `<span class="border px-2 py-1 text-xs opacity-70 border-slate-300">${s.trim()}</span>`).join('')}
+                                ${skillsArr.map((s, i) => `<span class="border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-600 bg-slate-50">${s.trim()}</span>`).join('')}
                             </div>
                         </div>
                     </div>
@@ -596,20 +763,27 @@
             const container = document.getElementById('preview-container');
             const page = document.getElementById('cv-render-target');
             if(!container || !page) return;
-            const availW = container.clientWidth - 32;
-            const scale = Math.min(availW / 794, 1); // 794px = 210mm @ 96dpi
+            
+            const paperWidth = this.data.config.paper === 'Letter' ? 816 : 794; // approx px 96dpi
+            const availW = container.clientWidth - 40;
+            const scale = Math.min(availW / paperWidth, 1); 
+            
             page.style.transform = `scale(${scale})`;
-            page.style.marginBottom = `-${1123 - (1123 * scale)}px`; // Compensate whitespace
+            
+            // Adjust height container to remove empty space below scaled element
+            const pageHeight = this.data.config.paper === 'Letter' ? 1056 : 1123;
+            page.style.marginBottom = `-${pageHeight - (pageHeight * scale)}px`; 
+            
             document.getElementById('zoom-level').innerText = `${Math.round(scale*100)}%`;
         },
 
         switchTab: function(t, btn) {
             document.querySelectorAll('#tab-content, #tab-design').forEach(b => {
-                b.classList.remove('bg-slate-700', 'text-white');
-                b.classList.add('text-slate-400', 'hover:text-white');
+                b.classList.remove('bg-blue-600', 'text-white', 'shadow-lg');
+                b.classList.add('bg-slate-800', 'text-slate-400', 'hover:bg-slate-700', 'hover:text-white');
             });
-            btn.classList.remove('text-slate-400', 'hover:text-white');
-            btn.classList.add('bg-slate-700', 'text-white');
+            btn.classList.remove('bg-slate-800', 'text-slate-400', 'hover:bg-slate-700', 'hover:text-white');
+            btn.classList.add('bg-blue-600', 'text-white', 'shadow-lg');
             document.getElementById('panel-content').style.display = t === 'content' ? 'block' : 'none';
             document.getElementById('panel-design').style.display = t === 'design' ? 'block' : 'none';
         }
