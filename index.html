@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CV Creator Platinum - HTML/JS</title>
+    <title>CV Creator Platinum - Generatore PDF</title>
     
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;600;700&family=Merriweather:wght@300;400;700&family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
 
-    <!-- Tailwind Configuration (Optional but good practice) -->
+    <!-- Configurazione Tailwind -->
     <script>
         tailwind.config = {
             theme: {
@@ -24,28 +24,26 @@
                         poppins: ['Poppins', 'sans-serif'],
                     },
                     colors: {
-                        'primary-accent': 'var(--color-primary)',
+                        primary: 'var(--color-primary)',
+                        'side-bg': 'var(--color-side-bg)',
+                        'side-text': 'var(--color-side-text)',
                     }
                 }
-            },
-            corePlugins: {
-                preflight: false, // Essential if embedding in a larger site builder
             }
         }
     </script>
 
     <style>
-        /* --- GLOBAL & UTILITY STYLES --- */
+        /* --- STILI GLOBALI --- */
         body, html {
             margin: 0;
             padding: 0;
             height: 100%;
-            background-color: #f1f5f9;
+            background-color: #0f172a; /* Sfondo scuro per l'app */
             font-family: 'Inter', sans-serif;
             overflow: hidden; /* App-like feel */
         }
         
-        /* Utility per il layout */
         .app-container {
             display: flex;
             height: 100vh;
@@ -53,56 +51,77 @@
             box-sizing: border-box;
         }
 
-        /* Scrollbar personalizzata per l'editor */
+        /* Scrollbar personalizzata */
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #1e293b; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #64748b; }
 
-        /* --- CV A4 PAGE STYLES (Print Target) --- */
+        /* --- FOGLIO A4 (Target) --- */
         #cv-render-target {
             width: 210mm;
             min-height: 297mm;
             background: white;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
             transform-origin: top center;
             transition: transform 0.2s ease;
             position: relative;
+            margin-bottom: 50px; /* Spazio per lo scroll */
         }
         
-        /* CSS Variabili per i template */
+        /* Variabili CSS Dinamiche */
         .cv-page {
-            color: var(--color-text);
+            color: var(--color-text, #1e293b);
             line-height: 1.5;
-            min-height: 297mm;
         }
-        .cv-primary { color: var(--color-primary); }
-        .cv-bg-primary { background-color: var(--color-primary); }
-        .cv-border-primary { border-color: var(--color-primary); }
-        .cv-sidebar { background-color: var(--color-side-bg); color: var(--color-side-text); }
         
-        /* --- STILI DI STAMPA (CRITICO PER PDF) --- */
+        /* --- REGOLE DI STAMPA CRITICHE (FIX PDF BIANCO) --- */
         @media print {
-            body { background: white; margin: 0; padding: 0; overflow: visible !important; }
-            .print-hidden { display: none !important; }
-            .app-container { display: block !important; height: auto !important; }
-            
+            /* 1. Nascondi TUTTO */
+            body * {
+                visibility: hidden;
+            }
+
+            /* 2. Resetta contenitori principali */
+            body, html, .app-container, #preview-container {
+                background: white !important;
+                height: auto !important;
+                width: 100% !important;
+                overflow: visible !important;
+                position: static !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            /* 3. Rendi visibile SOLO il CV e i suoi figli */
+            #cv-render-target, #cv-render-target * {
+                visibility: visible;
+            }
+
+            /* 4. Posiziona il CV in alto a sinistra assoluto */
             #cv-render-target {
-                position: absolute;
+                position: fixed;
                 left: 0;
                 top: 0;
-                width: 100% !important;
-                height: auto !important;
-                min-height: 100vh !important;
-                margin: 0;
-                padding: 0;
-                box-shadow: none;
-                transform: none !important; /* Rimuovi zoom */
+                width: 210mm !important;
+                min-height: 297mm !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                box-shadow: none !important;
+                transform: none !important; /* Disabilita lo zoom JS */
+                z-index: 9999;
                 
-                /* Forza i colori di sfondo/testo */
+                /* 5. Forza la stampa di sfondi e colori */
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
+                background-color: white !important;
             }
-            @page { margin: 0; size: A4; }
+
+            /* 6. Impostazioni Pagina */
+            @page {
+                margin: 0;
+                size: A4;
+            }
         }
     </style>
 </head>
@@ -110,176 +129,199 @@
 
 <div id="cv-app-root" class="app-container">
     
-    <!-- EDITOR (LEFT) -->
-    <div class="editor-sidebar w-full md:w-[450px] bg-slate-800 flex-shrink-0 flex flex-col z-20 print-hidden">
+    <!-- EDITOR (SINISTRA) -->
+    <div class="w-full md:w-[420px] bg-slate-900 border-r border-slate-700 flex-shrink-0 flex flex-col z-20 print-hidden shadow-2xl">
         
         <!-- HEADER -->
-        <div class="editor-header p-4 bg-slate-900 border-b border-slate-700 flex justify-between items-center">
-            <div class="brand text-white text-lg font-bold flex items-center gap-2">
-                <i class="fa-solid fa-file-invoice text-blue-500"></i> CV Platinum
+        <div class="p-5 border-b border-slate-700 flex justify-between items-center bg-slate-900">
+            <div class="text-white text-xl font-bold flex items-center gap-2 tracking-tight">
+                <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center text-white shadow-lg">
+                    <i class="fa-solid fa-file-contract text-sm"></i>
+                </div>
+                CV Platinum
             </div>
-            <button onclick="cvApp.resetData()" class="px-3 py-1.5 bg-slate-700 text-slate-300 rounded text-sm hover:bg-slate-600 transition-colors">
-                <i class="fa-solid fa-rotate-left mr-1"></i> Reset
+            <button onclick="cvApp.resetData()" class="text-slate-400 hover:text-white transition-colors text-sm flex items-center gap-1">
+                <i class="fa-solid fa-rotate-right"></i> Reset
             </button>
         </div>
 
         <!-- TABS -->
-        <div class="editor-tabs flex bg-slate-900">
-            <button id="tab-content" onclick="cvApp.switchTab('content', this)" class="tab-btn active flex-1 py-3 text-sm font-semibold text-white border-b-2 border-blue-500 bg-blue-900/20 transition-all">
-                <i class="fa-solid fa-user-pen mr-1"></i> Contenuto
+        <div class="flex bg-slate-800 p-1 gap-1 mx-4 mt-4 rounded-lg">
+            <button id="tab-content" onclick="cvApp.switchTab('content', this)" class="flex-1 py-2 text-sm font-medium text-white bg-slate-700 rounded shadow-sm transition-all">
+                Dati
             </button>
-            <button id="tab-design" onclick="cvApp.switchTab('design', this)" class="tab-btn flex-1 py-3 text-sm font-semibold text-slate-400 hover:text-white transition-all">
-                <i class="fa-solid fa-paintbrush mr-1"></i> Design
+            <button id="tab-design" onclick="cvApp.switchTab('design', this)" class="flex-1 py-2 text-sm font-medium text-slate-400 hover:text-white transition-all">
+                Stile
             </button>
         </div>
 
         <!-- SCROLLABLE CONTENT -->
-        <div class="editor-content flex-1 overflow-y-auto custom-scrollbar p-6 bg-slate-800">
+        <div class="flex-1 overflow-y-auto custom-scrollbar p-6">
             
             <!-- PANEL: CONTENT -->
             <div id="panel-content">
                 
-                <!-- FOTO E INFO PERSONALI -->
-                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Informazioni Base</h3>
-                <div class="bg-slate-700 p-4 rounded-xl shadow-inner mb-6">
-                    <div class="flex items-center gap-4 mb-4">
-                        <div id="preview-photo" class="w-16 h-16 rounded-full bg-slate-600 border-2 border-slate-500 flex items-center justify-center overflow-hidden shrink-0">
-                            <i class="fa-solid fa-user text-slate-400 text-2xl"></i>
+                <!-- FOTO -->
+                <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 mb-6">
+                    <label class="text-xs font-bold text-slate-400 uppercase mb-3 block">Foto Profilo</label>
+                    <div class="flex items-center gap-4">
+                        <div id="preview-photo" class="w-16 h-16 rounded-full bg-slate-700 border-2 border-slate-600 flex items-center justify-center overflow-hidden shrink-0">
+                            <i class="fa-solid fa-user text-slate-500 text-2xl"></i>
                         </div>
-                        <input type="file" id="upload-photo" accept="image/*" style="display: none;" onchange="cvApp.uploadPhoto(this)">
-                        <button onclick="document.getElementById('upload-photo').click()" class="bg-blue-600 text-white text-xs font-bold px-3 py-1.5 rounded-md hover:bg-blue-500 transition-colors flex items-center gap-1">
-                            <i class="fa-solid fa-upload"></i> Carica
-                        </button>
-                        <button onclick="cvApp.removePhoto()" class="text-xs text-red-400 hover:text-red-300">Rimuovi</button>
+                        <div class="flex flex-col gap-2">
+                            <input type="file" id="upload-photo" accept="image/*" style="display: none;" onchange="cvApp.uploadPhoto(this)">
+                            <button onclick="document.getElementById('upload-photo').click()" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold px-3 py-1.5 rounded transition-colors">
+                                Carica Foto
+                            </button>
+                            <button onclick="cvApp.removePhoto()" class="text-xs text-red-400 hover:text-red-300 text-left">Rimuovi</button>
+                        </div>
                     </div>
-                    
-                    <input type="text" data-model="personal.name" placeholder="Nome e Cognome" class="mb-2">
-                    <input type="text" data-model="personal.title" placeholder="Job Title">
-                    <div class="flex gap-3 my-2">
-                        <input type="text" data-model="personal.email" placeholder="Email" class="flex-1">
-                        <input type="text" data-model="personal.phone" placeholder="Telefono" class="flex-1">
+                </div>
+
+                <!-- INFO -->
+                <div class="space-y-3 mb-6">
+                    <input type="text" data-model="personal.name" placeholder="Nome e Cognome" class="w-full bg-slate-800 border border-slate-700 text-white rounded p-3 text-sm focus:border-blue-500 focus:outline-none placeholder-slate-500">
+                    <input type="text" data-model="personal.title" placeholder="Titolo Professionale" class="w-full bg-slate-800 border border-slate-700 text-white rounded p-3 text-sm focus:border-blue-500 focus:outline-none placeholder-slate-500">
+                    <div class="grid grid-cols-2 gap-3">
+                        <input type="text" data-model="personal.email" placeholder="Email" class="bg-slate-800 border border-slate-700 text-white rounded p-3 text-sm focus:border-blue-500 focus:outline-none placeholder-slate-500">
+                        <input type="text" data-model="personal.phone" placeholder="Telefono" class="bg-slate-800 border border-slate-700 text-white rounded p-3 text-sm focus:border-blue-500 focus:outline-none placeholder-slate-500">
                     </div>
-                    <input type="text" data-model="personal.location" placeholder="Città / Indirizzo">
+                    <input type="text" data-model="personal.location" placeholder="Indirizzo / Città" class="w-full bg-slate-800 border border-slate-700 text-white rounded p-3 text-sm focus:border-blue-500 focus:outline-none placeholder-slate-500">
                 </div>
 
-                <!-- PROFILO -->
-                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Profilo</h3>
-                <textarea data-model="personal.summary" rows="4" placeholder="Breve descrizione professionale..."></textarea>
-
-                <!-- ESPERIENZA -->
-                <div class="flex justify-between items-center my-4">
-                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest">Esperienza</h3>
-                    <button onclick="cvApp.addItem('experience')" class="text-xs font-bold text-blue-400 hover:text-blue-300 transition-colors flex items-center">
-                        <i class="fa-solid fa-plus mr-1"></i> Aggiungi
-                    </button>
+                <div class="mb-6">
+                    <label class="text-xs font-bold text-slate-400 uppercase mb-2 block">Profilo</label>
+                    <textarea data-model="personal.summary" rows="4" class="w-full bg-slate-800 border border-slate-700 text-white rounded p-3 text-sm focus:border-blue-500 focus:outline-none placeholder-slate-500 resize-none" placeholder="Breve descrizione..."></textarea>
                 </div>
-                <div id="list-experience" class="space-y-3"></div>
 
-                <!-- ISTRUZIONE -->
-                <div class="flex justify-between items-center my-4">
-                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest">Istruzione</h3>
-                    <button onclick="cvApp.addItem('education')" class="text-xs font-bold text-blue-400 hover:text-blue-300 transition-colors flex items-center">
-                        <i class="fa-solid fa-plus mr-1"></i> Aggiungi
-                    </button>
+                <!-- LISTE -->
+                <div class="mb-6">
+                    <div class="flex justify-between items-center mb-3">
+                        <label class="text-xs font-bold text-slate-400 uppercase block">Esperienza</label>
+                        <button onclick="cvApp.addItem('experience')" class="text-xs text-blue-400 hover:text-blue-300 font-bold">+ Aggiungi</button>
+                    </div>
+                    <div id="list-experience" class="space-y-3"></div>
                 </div>
-                <div id="list-education" class="space-y-3"></div>
 
-                <!-- SKILLS -->
-                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest my-4">Competenze (separate da virgola)</h3>
-                <textarea data-model="skills" rows="3" placeholder="SEO, SEM, Inglese C1, Leadership..."></textarea>
+                <div class="mb-6">
+                    <div class="flex justify-between items-center mb-3">
+                        <label class="text-xs font-bold text-slate-400 uppercase block">Istruzione</label>
+                        <button onclick="cvApp.addItem('education')" class="text-xs text-blue-400 hover:text-blue-300 font-bold">+ Aggiungi</button>
+                    </div>
+                    <div id="list-education" class="space-y-3"></div>
+                </div>
+
+                <div>
+                    <label class="text-xs font-bold text-slate-400 uppercase mb-2 block">Competenze</label>
+                    <textarea data-model="skills" rows="3" class="w-full bg-slate-800 border border-slate-700 text-white rounded p-3 text-sm focus:border-blue-500 focus:outline-none placeholder-slate-500 resize-none" placeholder="Separale con una virgola..."></textarea>
+                </div>
             </div>
 
             <!-- PANEL: DESIGN -->
             <div id="panel-design" style="display: none;">
                 
                 <!-- LAYOUT -->
-                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Struttura Layout</h3>
-                <div class="grid grid-cols-3 gap-3 mb-6">
-                    <button onclick="cvApp.setLayout('sidebarLeft', this)" class="tpl-card active bg-slate-700 border-2 border-blue-500 rounded-lg p-3 text-center text-white transition-colors">
-                        <div class="h-8 w-full bg-slate-600 rounded-md flex overflow-hidden mb-2"><div class="w-1/3 bg-slate-500 h-full"></div><div class="w-2/3 bg-white/10 h-full"></div></div>
-                        <span class="text-xs font-semibold">Moderno</span>
-                    </button>
-                    <button onclick="cvApp.setLayout('classic', this)" class="tpl-card bg-slate-700 border-2 border-transparent rounded-lg p-3 text-center text-slate-300 hover:border-slate-500 transition-colors">
-                        <div class="h-8 w-full bg-slate-600 rounded-md border-t-4 border-slate-500 mb-2"></div>
-                        <span class="text-xs font-semibold">Classico</span>
-                    </button>
-                    <button onclick="cvApp.setLayout('minimal', this)" class="tpl-card bg-slate-700 border-2 border-transparent rounded-lg p-3 text-center text-slate-300 hover:border-slate-500 transition-colors">
-                        <div class="h-8 w-full bg-slate-600 rounded-md border-l-4 border-slate-500 mb-2"></div>
-                        <span class="text-xs font-semibold">Minimal</span>
-                    </button>
+                <div class="mb-6">
+                    <label class="text-xs font-bold text-slate-400 uppercase mb-3 block">Scegli Layout</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button onclick="cvApp.setLayout('sidebarLeft', this)" class="tpl-card active bg-slate-800 border-2 border-blue-500 rounded-lg p-3 text-center text-white hover:bg-slate-700 transition-all">
+                            <div class="h-10 w-full bg-slate-700 rounded mb-2 flex overflow-hidden border border-slate-600"><div class="w-1/3 bg-slate-500 h-full"></div><div class="w-2/3 bg-transparent h-full"></div></div>
+                            <span class="text-xs font-bold">Moderno</span>
+                        </button>
+                        <button onclick="cvApp.setLayout('classic', this)" class="tpl-card bg-slate-800 border-2 border-transparent rounded-lg p-3 text-center text-slate-400 hover:bg-slate-700 transition-all">
+                            <div class="h-10 w-full bg-slate-700 rounded mb-2 flex flex-col border border-slate-600"><div class="w-full h-3 bg-slate-500 border-b border-slate-600"></div></div>
+                            <span class="text-xs font-bold">Classico</span>
+                        </button>
+                        <button onclick="cvApp.setLayout('minimal', this)" class="tpl-card bg-slate-800 border-2 border-transparent rounded-lg p-3 text-center text-slate-400 hover:bg-slate-700 transition-all">
+                            <div class="h-10 w-full bg-slate-700 rounded mb-2 flex border border-slate-600"><div class="w-full h-full border-l-4 border-slate-500 ml-2"></div></div>
+                            <span class="text-xs font-bold">Minimal</span>
+                        </button>
+                    </div>
                 </div>
                 
                 <!-- COLORI -->
-                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Palette Colori</h3>
-                <div class="space-y-3 mb-6">
-                    <div class="flex items-center justify-between bg-slate-700 p-2 rounded">
-                        <span class="text-sm text-slate-300">Primario (Accenti)</span>
-                        <input type="color" data-model="config.color" oninput="cvApp.setConfig('color', this.value)" class="w-8 h-8 rounded-full border-2 border-white p-0 cursor-pointer">
-                    </div>
-                    <div class="flex items-center justify-between bg-slate-700 p-2 rounded">
-                        <span class="text-sm text-slate-300">Sfondo Sidebar</span>
-                        <input type="color" data-model="config.sidebarBg" oninput="cvApp.setConfig('sidebarBg', this.value)" class="w-8 h-8 rounded-full border-2 border-white p-0 cursor-pointer">
-                    </div>
-                    <div class="flex items-center justify-between bg-slate-700 p-2 rounded">
-                        <span class="text-sm text-slate-300">Testo CV</span>
-                        <input type="color" data-model="config.textColor" oninput="cvApp.setConfig('textColor', this.value)" class="w-8 h-8 rounded-full border-2 border-white p-0 cursor-pointer">
+                <div class="mb-6">
+                    <label class="text-xs font-bold text-slate-400 uppercase mb-3 block">Colori</label>
+                    <div class="bg-slate-800 p-3 rounded-lg border border-slate-700 space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-slate-300">Colore Principale</span>
+                            <div class="relative w-8 h-8 rounded-full overflow-hidden border-2 border-slate-500">
+                                <input type="color" data-model="config.color" oninput="cvApp.setConfig('color', this.value)" class="absolute -top-2 -left-2 w-16 h-16 cursor-pointer">
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-slate-300">Sfondo Sidebar</span>
+                            <div class="relative w-8 h-8 rounded-full overflow-hidden border-2 border-slate-500">
+                                <input type="color" data-model="config.sidebarBg" oninput="cvApp.setConfig('sidebarBg', this.value)" class="absolute -top-2 -left-2 w-16 h-16 cursor-pointer">
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-slate-300">Colore Testo</span>
+                            <div class="relative w-8 h-8 rounded-full overflow-hidden border-2 border-slate-500">
+                                <input type="color" data-model="config.textColor" oninput="cvApp.setConfig('textColor', this.value)" class="absolute -top-2 -left-2 w-16 h-16 cursor-pointer">
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- FONT -->
-                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Tipografia</h3>
-                <select data-model="config.font" onchange="cvApp.setConfig('font', this.value)" class="mb-6">
-                    <option value="Inter, sans-serif">Inter (Standard)</option>
-                    <option value="Poppins, sans-serif">Poppins (Moderno)</option>
-                    <option value="Merriweather, serif">Merriweather (Elegante)</option>
-                    <option value="Roboto Mono, monospace">Roboto Mono (Tech)</option>
-                </select>
+                <!-- TIPOGRAFIA -->
+                <div class="mb-6">
+                    <label class="text-xs font-bold text-slate-400 uppercase mb-3 block">Carattere</label>
+                    <select data-model="config.font" onchange="cvApp.setConfig('font', this.value)" class="w-full bg-slate-800 border border-slate-700 text-white rounded p-3 text-sm focus:border-blue-500 focus:outline-none">
+                        <option value="Inter, sans-serif">Inter (Standard)</option>
+                        <option value="Poppins, sans-serif">Poppins (Moderno)</option>
+                        <option value="Merriweather, serif">Merriweather (Elegante)</option>
+                        <option value="Roboto Mono, monospace">Roboto Mono (Tech)</option>
+                    </select>
+                </div>
 
-                <!-- SCALA TESTO -->
-                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Dimensione Testo</h3>
-                <input type="range" data-model="config.scale" min="0.8" max="1.2" step="0.05" oninput="cvApp.setConfig('scale', this.value)" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-600">
+                <!-- SCALA -->
+                <div>
+                    <label class="text-xs font-bold text-slate-400 uppercase mb-3 block flex justify-between">Dimensione Testo <span id="scale-val" class="text-blue-400">100%</span></label>
+                    <input type="range" min="0.8" max="1.2" step="0.05" value="1" oninput="cvApp.setConfig('scale', this.value); document.getElementById('scale-val').innerText = Math.round(this.value*100) + '%'" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500">
+                </div>
+
             </div>
 
         </div>
 
-        <!-- FOOTER: DOWNLOAD -->
+        <!-- FOOTER -->
         <div class="p-4 bg-slate-900 border-t border-slate-700 print-hidden">
-            <button onclick="window.print()" class="w-full px-4 py-3 bg-blue-600 text-white rounded-lg font-bold text-lg hover:bg-blue-500 transition-colors flex items-center justify-center gap-2">
+            <button onclick="window.print()" class="w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg font-bold text-lg hover:from-blue-500 hover:to-indigo-500 transition-all shadow-lg flex items-center justify-center gap-2 transform hover:-translate-y-0.5">
                 <i class="fa-solid fa-download"></i> Scarica PDF
             </button>
         </div>
     </div>
 
-    <!-- PREVIEW (RIGHT) -->
-    <div id="preview-container" class="flex-1 bg-slate-200 relative overflow-hidden flex justify-center items-start p-8">
+    <!-- PREVIEW (DESTRA) -->
+    <div id="preview-container" class="flex-1 bg-slate-100 relative overflow-hidden flex justify-center items-start pt-10 px-4 print-hidden">
         
-        <div class="absolute top-4 right-4 bg-black/60 text-white text-xs px-3 py-1.5 rounded-full backdrop-blur-sm flex items-center gap-2 pointer-events-none z-20">
-            <i class="fa-solid fa-magnifying-glass"></i> <span id="zoom-level">100%</span>
+        <!-- Zoom Badge -->
+        <div class="absolute top-4 right-4 bg-slate-800/80 text-white text-xs font-medium px-3 py-1.5 rounded-full backdrop-blur-sm shadow-sm flex items-center gap-2 z-10">
+            <i class="fa-solid fa-magnifying-glass text-slate-400"></i> <span id="zoom-level">100%</span>
         </div>
 
-        <!-- A4 PAGE CONTAINER -->
-        <div id="cv-render-target" class="bg-white">
-            <!-- CV CONTENT WILL BE INJECTED HERE -->
+        <!-- CV CONTAINER (A4) -->
+        <div id="cv-render-target" class="bg-white text-slate-900">
+            <!-- Il contenuto del CV viene iniettato qui da JS -->
         </div>
 
     </div>
 
 </div>
 
-<!-- APP LOGIC -->
+<!-- LOGICA JS -->
 <script>
     const cvApp = {
-        // --- DATA STATE ---
         data: {
-            personal: { name: 'Mario Rossi', title: 'Digital Marketing Manager', email: 'mario.rossi@example.com', phone: '+39 333 1234567', location: 'Milano, Italia', summary: 'Professionista con oltre 5 anni di esperienza nella gestione di campagne digitali e team creativi. Appassionato di dati, ROI e strategie di crescita innovative.' },
-            experience: [{ id: 1, role: 'Senior Manager', company: 'Tech Agency', start: '2020', end: 'Oggi', desc: 'Gestione budget 50k/mese. Coordinamento team di 5 persone e pianificazione strategica trimestrale.' }],
+            personal: { name: 'Mario Rossi', title: 'Digital Marketing Manager', email: 'mario.rossi@email.it', phone: '333 1234567', location: 'Milano, Italia', summary: 'Professionista con oltre 5 anni di esperienza nella gestione di campagne digitali e team creativi. Appassionato di dati, ROI e strategie di crescita innovative.' },
+            experience: [{ id: 1, role: 'Senior Manager', company: 'Tech Solutions', start: '2020', end: 'Oggi', desc: 'Gestione budget 50k/mese. Coordinamento team di 5 persone.' }],
             education: [{ id: 1, degree: 'Laurea in Economia', school: 'Università Bocconi', year: '2019' }],
             skills: 'SEO, SEM, Google Analytics, Leadership, Inglese C1',
             photo: null,
             config: { template: 'sidebarLeft', color: '#2563eb', font: 'Inter, sans-serif', scale: 1, sidebarBg: '#1e293b', textColor: '#1e293b' }
         },
         
-        // --- INITIALIZATION ---
         init: function() {
             this.loadData();
             this.bindInputEvents();
@@ -287,416 +329,292 @@
             this.updatePhotoPreview();
             this.render();
             
-            // Auto-Zoom Observer
+            // Auto-Zoom (Responsive)
             const observer = new ResizeObserver(() => this.autoScale());
-            const previewContainer = document.getElementById('preview-container');
-            if (previewContainer) observer.observe(previewContainer);
-            setTimeout(() => this.autoScale(), 100);
+            const container = document.getElementById('preview-container');
+            if(container) observer.observe(container);
+            setTimeout(() => this.autoScale(), 200);
         },
 
-        // --- STATE MANAGEMENT ---
+        // --- GESTIONE DATI ---
         loadData: function() {
-            const saved = localStorage.getItem('cv_platinum_data_js');
+            const saved = localStorage.getItem('cv_plat_js_v2');
             if (saved) {
                 try {
-                    const loadedData = JSON.parse(saved);
-                    // Merge con fallback per le nuove chiavi (importante per textColor)
-                    this.data = {...this.data, ...loadedData, config: {...this.data.config, ...loadedData.config}};
-                } catch(e) { console.error("Could not load stored data", e); }
+                    const loaded = JSON.parse(saved);
+                    this.data = {...this.data, ...loaded, config: {...this.data.config, ...loaded.config}};
+                } catch(e) {}
             }
         },
-
-        saveData: function() {
-            localStorage.setItem('cv_platinum_data_js', JSON.stringify(this.data));
-        },
-
+        saveData: function() { localStorage.setItem('cv_plat_js_v2', JSON.stringify(this.data)); },
         resetData: function() {
-            if(confirm('Sei sicuro di voler cancellare tutto e ricominciare?')) {
-                localStorage.removeItem('cv_platinum_data_js');
+            if(confirm('Cancellare tutto?')) {
+                localStorage.removeItem('cv_plat_js_v2');
                 location.reload();
             }
         },
-        
+
         bindInputEvents: function() {
-            // Bind inputs to data model
             document.querySelectorAll('[data-model]').forEach(input => {
-                const keyPath = input.getAttribute('data-model').split('.');
+                const [p, k] = input.getAttribute('data-model').split('.');
+                input.value = k ? (this.data[p][k] || '') : (this.data[p] || '');
                 
-                // Set initial value
-                if (keyPath.length === 2) {
-                    input.value = this.data[keyPath[0]][keyPath[1]] || '';
-                } else if (keyPath[0] === 'skills') {
-                    input.value = this.data.skills;
-                }
-
                 input.oninput = (e) => {
-                    this.updateModel(keyPath, e.target.value);
+                    if (k) this.data[p][k] = e.target.value;
+                    else this.data[p] = e.target.value;
+                    this.saveData(); this.render();
                 };
             });
         },
-        
-        updateModel: function(keyPath, value) {
-            if (keyPath.length === 2) {
-                this.data[keyPath[0]][keyPath[1]] = value;
-            } else if (keyPath[0] === 'skills') {
-                this.data.skills = value;
-            } else if (keyPath[0] === 'config') {
-                // Config setters handle this separately
-                return;
-            }
-            this.saveData();
-            this.render();
-        },
 
-        // --- CONFIG SETTERS ---
-        setConfig: function(key, value) {
-            this.data.config[key] = value;
-            this.saveData();
-            this.render();
-        },
-
-        setLayout: function(layout, button) {
-            this.data.config.template = layout;
-            document.querySelectorAll('.tpl-card').forEach(btn => {
-                btn.classList.remove('active', 'border-blue-500', 'text-white');
-                btn.classList.add('border-transparent', 'text-slate-300');
+        setConfig: function(k, v) { this.data.config[k] = v; this.saveData(); this.render(); },
+        setLayout: function(tpl, btn) {
+            this.data.config.template = tpl;
+            document.querySelectorAll('.tpl-card').forEach(b => {
+                b.classList.remove('active', 'border-blue-500', 'text-white');
+                b.classList.add('border-transparent', 'text-slate-400');
             });
-            button.classList.add('active', 'border-blue-500', 'text-white');
-            this.saveData();
-            this.render();
+            btn.classList.add('active', 'border-blue-500', 'text-white');
+            this.saveData(); this.render();
         },
 
-        // --- LIST MANAGEMENT (Experience/Education) ---
+        // --- LISTE ---
         addItem: function(type) {
-            const newItem = type === 'experience' 
-                ? { id: Date.now(), role: 'Nuovo Ruolo', company: 'Azienda', start: '', end: '', desc: '' }
-                : { id: Date.now(), degree: 'Titolo', school: 'Scuola', year: '' };
-            this.data[type].unshift(newItem);
-            this.saveData();
-            this.renderLists();
-            this.render();
+            const item = type === 'experience' 
+                ? { id: Date.now(), role: 'Ruolo', company: 'Azienda', start: '', end: '', desc: '' }
+                : { id: Date.now(), degree: 'Titolo', school: 'Istituto', year: '' };
+            this.data[type].unshift(item);
+            this.saveData(); this.renderLists(); this.render();
         },
-        
         removeItem: function(type, id) {
-            if(confirm('Rimuovere questo elemento?')) {
-                this.data[type] = this.data[type].filter(item => item.id !== id);
-                this.saveData();
-                this.renderLists();
-                this.render();
+            if(confirm('Rimuovere?')) {
+                this.data[type] = this.data[type].filter(i => i.id !== id);
+                this.saveData(); this.renderLists(); this.render();
             }
         },
-
-        updateListItem: function(type, id, field, value) {
+        updateList: function(type, id, key, val) {
             const item = this.data[type].find(i => i.id === id);
-            if(item) item[field] = value;
-            this.saveData();
-            this.render();
+            if(item) item[key] = val;
+            this.saveData(); this.render();
         },
-
         renderLists: function() {
-            const expContainer = document.getElementById('list-experience');
-            expContainer.innerHTML = this.data.experience.map(item => `
-                <div class="dynamic-item bg-slate-700 p-3 rounded-lg relative">
-                    <button class="btn-del" onclick="cvApp.removeItem('experience', ${item.id})"><i class="fa-solid fa-trash-can"></i></button>
-                    <input class="w-full p-2 bg-slate-600 rounded mb-2 text-sm font-semibold" value="${item.role}" oninput="cvApp.updateListItem('experience', ${item.id}, 'role', this.value)" placeholder="Ruolo">
-                    <input class="w-full p-2 bg-slate-600 rounded mb-2 text-xs" value="${item.company}" oninput="cvApp.updateListItem('experience', ${item.id}, 'company', this.value)" placeholder="Azienda">
+            document.getElementById('list-experience').innerHTML = this.data.experience.map(i => `
+                <div class="bg-slate-800 p-3 rounded border border-slate-700 relative group">
+                    <button onclick="cvApp.removeItem('experience', ${i.id})" class="absolute top-2 right-2 text-slate-500 hover:text-red-400"><i class="fa-solid fa-trash"></i></button>
+                    <input class="bg-transparent text-white font-bold w-full mb-1 text-sm focus:outline-none" value="${i.role}" oninput="cvApp.updateList('experience', ${i.id}, 'role', this.value)" placeholder="Ruolo">
+                    <input class="bg-transparent text-slate-400 w-full text-xs mb-2 focus:outline-none" value="${i.company}" oninput="cvApp.updateList('experience', ${i.id}, 'company', this.value)" placeholder="Azienda">
                     <div class="flex gap-2 mb-2">
-                        <input class="w-1/2 p-2 bg-slate-600 rounded text-xs" value="${item.start}" oninput="cvApp.updateListItem('experience', ${item.id}, 'start', this.value)" placeholder="Dal">
-                        <input class="w-1/2 p-2 bg-slate-600 rounded text-xs" value="${item.end}" oninput="cvApp.updateListItem('experience', ${item.id}, 'end', this.value)" placeholder="Al">
+                        <input class="bg-slate-700 text-white rounded text-xs p-1 w-1/2 focus:outline-none" value="${i.start}" oninput="cvApp.updateList('experience', ${i.id}, 'start', this.value)" placeholder="Dal">
+                        <input class="bg-slate-700 text-white rounded text-xs p-1 w-1/2 focus:outline-none" value="${i.end}" oninput="cvApp.updateList('experience', ${i.id}, 'end', this.value)" placeholder="Al">
                     </div>
-                    <textarea rows="2" class="w-full p-2 bg-slate-600 rounded text-xs resize-none" oninput="cvApp.updateListItem('experience', ${item.id}, 'desc', this.value)" placeholder="Descrizione attività...">${item.desc}</textarea>
+                    <textarea class="bg-slate-700 text-white rounded text-xs p-2 w-full resize-none focus:outline-none" rows="2" oninput="cvApp.updateList('experience', ${i.id}, 'desc', this.value)" placeholder="Descrizione...">${i.desc}</textarea>
                 </div>
             `).join('');
-
-            const eduContainer = document.getElementById('list-education');
-            eduContainer.innerHTML = this.data.education.map(item => `
-                <div class="dynamic-item bg-slate-700 p-3 rounded-lg relative">
-                    <button class="btn-del" onclick="cvApp.removeItem('education', ${item.id})"><i class="fa-solid fa-trash-can"></i></button>
-                    <input class="w-full p-2 bg-slate-600 rounded mb-2 text-sm font-semibold" value="${item.degree}" oninput="cvApp.updateListItem('education', ${item.id}, 'degree', this.value)" placeholder="Titolo di Studio">
-                    <input class="w-full p-2 bg-slate-600 rounded mb-2 text-xs" value="${item.school}" oninput="cvApp.updateListItem('education', ${item.id}, 'school', this.value)" placeholder="Istituto">
-                    <input class="w-full p-2 bg-slate-600 rounded text-xs" value="${item.year}" oninput="cvApp.updateListItem('education', ${item.id}, 'year', this.value)" placeholder="Anno">
+            
+            document.getElementById('list-education').innerHTML = this.data.education.map(i => `
+                <div class="bg-slate-800 p-3 rounded border border-slate-700 relative group">
+                    <button onclick="cvApp.removeItem('education', ${i.id})" class="absolute top-2 right-2 text-slate-500 hover:text-red-400"><i class="fa-solid fa-trash"></i></button>
+                    <input class="bg-transparent text-white font-bold w-full mb-1 text-sm focus:outline-none" value="${i.degree}" oninput="cvApp.updateList('education', ${i.id}, 'degree', this.value)" placeholder="Titolo">
+                    <input class="bg-transparent text-slate-400 w-full text-xs mb-2 focus:outline-none" value="${i.school}" oninput="cvApp.updateList('education', ${i.id}, 'school', this.value)" placeholder="Istituto">
+                    <input class="bg-slate-700 text-white rounded text-xs p-1 w-full focus:outline-none" value="${i.year}" oninput="cvApp.updateList('education', ${i.id}, 'year', this.value)" placeholder="Anno">
                 </div>
             `).join('');
         },
 
-        // --- PHOTO MANAGEMENT ---
-        uploadPhoto: function(input) {
-            const file = input.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    this.data.photo = e.target.result;
-                    this.saveData();
-                    this.updatePhotoPreview();
-                    this.render();
-                };
-                reader.readAsDataURL(file);
+        // --- FOTO ---
+        uploadPhoto: function(el) {
+            const file = el.files[0];
+            if(file) {
+                const r = new FileReader();
+                r.onload = (e) => { this.data.photo = e.target.result; this.saveData(); this.updatePhotoPreview(); this.render(); };
+                r.readAsDataURL(file);
             }
         },
-
-        removePhoto: function() {
-            this.data.photo = null;
-            this.saveData();
-            this.updatePhotoPreview();
-            this.render();
-        },
-
+        removePhoto: function() { this.data.photo = null; this.saveData(); this.updatePhotoPreview(); this.render(); },
         updatePhotoPreview: function() {
             const div = document.getElementById('preview-photo');
-            if (this.data.photo) {
-                div.innerHTML = `<img src="${this.data.photo}" style="width:100%; height:100%; object-fit:cover;">`;
-            } else {
-                div.innerHTML = '<i class="fa-solid fa-user text-slate-400 text-2xl"></i>';
-            }
+            div.innerHTML = this.data.photo ? `<img src="${this.data.photo}" class="w-full h-full object-cover">` : `<i class="fa-solid fa-user text-slate-500 text-2xl"></i>`;
         },
 
-        // --- RENDERING CORE ---
+        // --- RENDER CV HTML ---
         render: function() {
             const d = this.data;
-            const c = d.config.color;
-            const sBg = d.config.sidebarBg;
-            const tColor = d.config.textColor; // Nuovo
-            const f = d.config.font;
-            const scale = d.config.scale;
-            const skillsArr = d.skills.split(',').filter(s => s.trim() !== '');
-
-            // Set CSS Variables on Root Target
+            const c = d.config;
             const target = document.getElementById('cv-render-target');
-            if (target) {
-                target.style.setProperty('--color-primary', c);
-                target.style.setProperty('--color-side-bg', sBg);
-                target.style.setProperty('--color-side-text', '#FFFFFF');
-                target.style.setProperty('--color-text', tColor); // Usa il colore testo configurabile
-                target.className = `cv-page ${f.includes('Poppins') ? 'font-poppins' : f.includes('Merriweather') ? 'font-serif' : f.includes('Roboto Mono') ? 'font-mono' : 'font-sans'}`;
-                target.style.fontSize = `${14 * scale}px`;
-            }
+            
+            // Imposta variabili CSS
+            target.style.setProperty('--color-primary', c.color);
+            target.style.setProperty('--color-side-bg', c.sidebarBg);
+            target.style.setProperty('--color-side-text', '#ffffff');
+            target.style.setProperty('--color-text', c.textColor);
+            target.style.fontFamily = c.font;
+            target.style.fontSize = `${14 * c.scale}px`;
 
-            let contentHTML = '';
-
-            /* --- TEMPLATE MODERN / SIDEBARLEFT --- */
-            if (d.config.template === 'sidebarLeft') {
-                contentHTML = `
+            let html = '';
+            
+            // 1. MODERN (Sidebar Left)
+            if (c.template === 'sidebarLeft') {
+                html = `
                 <div class="flex h-full">
-                    <!-- Sidebar -->
-                    <div class="w-[35%] cv-sidebar p-8 flex flex-col">
+                    <div class="w-[35%] bg-[var(--color-side-bg)] text-[var(--color-side-text)] p-8 flex flex-col print:w-[35%] print:h-full">
                         <div class="text-center mb-8">
                             ${d.photo ? `<div class="w-32 h-32 mx-auto mb-4 rounded-full bg-cover bg-center border-4 border-white/20" style="background-image:url('${d.photo}')"></div>` : `<div class="w-24 h-24 mx-auto mb-4 rounded-full bg-white/20 flex items-center justify-center text-3xl font-bold">${d.personal.name.charAt(0)}</div>`}
-                            <h1 class="text-2xl font-bold leading-tight mb-2 break-words">${d.personal.name}</h1>
-                            <p class="opacity-80 text-sm uppercase tracking-wider">${d.personal.title}</p>
+                            <h1 class="text-2xl font-bold leading-tight mb-2 break-words text-white">${d.personal.name}</h1>
+                            <p class="opacity-80 text-sm uppercase tracking-wider text-white">${d.personal.title}</p>
                         </div>
-
-                        <div class="space-y-3 text-sm mb-8 leading-relaxed opacity-90">
-                            <div class="text-xs font-bold uppercase tracking-widest border-b border-white/20 pb-2 mb-3 opacity-70">Contatti</div>
-                            <div class="flex items-center gap-3"><i class="fa-solid fa-envelope w-4 h-4 shrink-0"></i> <span style="word-break: break-all;">${d.personal.email}</span></div>
-                            <div class="flex items-center gap-3"><i class="fa-solid fa-phone w-4 h-4 shrink-0"></i> ${d.personal.phone}</div>
-                            <div class="flex items-center gap-3"><i class="fa-solid fa-location-dot w-4 h-4 shrink-0"></i> ${d.personal.location}</div>
+                        <div class="space-y-3 text-sm mb-8 opacity-90 text-white">
+                            <div class="flex items-center gap-3"><i class="fa-solid fa-envelope w-4"></i> <span class="break-all">${d.personal.email}</span></div>
+                            <div class="flex items-center gap-3"><i class="fa-solid fa-phone w-4"></i> ${d.personal.phone}</div>
+                            <div class="flex items-center gap-3"><i class="fa-solid fa-location-dot w-4"></i> ${d.personal.location}</div>
                         </div>
-
                         <div class="mt-auto">
-                            <div class="text-xs font-bold uppercase tracking-widest border-b border-white/20 pb-2 mb-3 opacity-70">Competenze</div>
-                            <div class="flex flex-wrap gap-2">
-                                ${skillsArr.map(s => `<span class="bg-white/10 px-2 py-1 rounded text-xs">${s.trim()}</span>`).join('')}
+                            <h3 class="text-xs font-bold uppercase tracking-widest border-b border-white/20 pb-2 mb-3 text-white opacity-80">Skills</h3>
+                            <div class="flex flex-wrap gap-2 text-white">
+                                ${d.skills.split(',').filter(s=>s.trim()).map(s => `<span class="bg-white/10 px-2 py-1 rounded text-xs">${s.trim()}</span>`).join('')}
                             </div>
                         </div>
                     </div>
-
-                    <!-- Main Content -->
-                    <div class="w-[65%] p-10 bg-white">
+                    <div class="w-[65%] p-10 bg-white text-[var(--color-text)]">
                         <section class="mb-8">
-                            <h3 class="uppercase text-lg font-bold border-b-2 pb-2 mb-4 tracking-widest cv-primary" style="border-color: ${c}33;">Profilo</h3>
-                            <p class="text-gray-600 text-justify leading-relaxed">${d.personal.summary}</p>
+                            <h3 class="uppercase text-lg font-bold border-b-2 pb-2 mb-4 tracking-widest text-[var(--color-primary)]" style="border-color: color-mix(in srgb, var(--color-primary), white 80%);">Profilo</h3>
+                            <p class="opacity-80 text-justify leading-relaxed">${d.personal.summary}</p>
                         </section>
-
                         <section class="mb-8">
-                            <h3 class="uppercase text-lg font-bold border-b-2 pb-2 mb-6 tracking-widest cv-primary" style="border-color: ${c}33;">Esperienza</h3>
+                            <h3 class="uppercase text-lg font-bold border-b-2 pb-2 mb-6 tracking-widest text-[var(--color-primary)]" style="border-color: color-mix(in srgb, var(--color-primary), white 80%);">Esperienza</h3>
                             <div class="space-y-6">
-                                ${d.experience.map(exp => `
-                                    <div class="relative pl-4 border-l-2 border-gray-100">
-                                        <div class="absolute -left-[5px] top-1.5 w-2 h-2 rounded-full cv-bg-primary"></div>
+                                ${d.experience.map(e => `
+                                    <div class="relative pl-4 border-l-2 border-slate-200">
+                                        <div class="absolute -left-[5px] top-1.5 w-2 h-2 rounded-full bg-[var(--color-primary)]"></div>
                                         <div class="flex justify-between items-baseline mb-1">
-                                            <h4 class="font-bold text-gray-800 text-lg">${exp.role}</h4>
-                                            <span class="text-xs font-bold bg-gray-100 text-gray-600 px-2 py-1 rounded">${exp.start} - ${exp.end}</span>
+                                            <h4 class="font-bold text-lg">${e.role}</h4>
+                                            <span class="text-xs font-bold bg-slate-100 px-2 py-1 rounded text-slate-600">${e.start} - ${e.end}</span>
                                         </div>
-                                        <div class="text-sm font-bold mb-2 cv-primary">${exp.company}</div>
-                                        <p class="text-gray-600 text-sm whitespace-pre-line">${exp.desc}</p>
+                                        <div class="text-sm font-bold mb-2 text-[var(--color-primary)]">${e.company}</div>
+                                        <p class="opacity-80 text-sm whitespace-pre-line">${e.desc}</p>
                                     </div>
                                 `).join('')}
                             </div>
                         </section>
-
                         <section>
-                            <h3 class="uppercase text-lg font-bold border-b-2 pb-2 mb-6 tracking-widest cv-primary" style="border-color: ${c}33;">Formazione</h3>
+                            <h3 class="uppercase text-lg font-bold border-b-2 pb-2 mb-6 tracking-widest text-[var(--color-primary)]" style="border-color: color-mix(in srgb, var(--color-primary), white 80%);">Formazione</h3>
                             <div class="space-y-4">
-                                ${d.education.map(edu => `
-                                    <div key=${edu.id}>
-                                        <div class="font-bold text-gray-800">${edu.degree}</div>
-                                        <div class="text-sm text-gray-500">${edu.school}, ${edu.year}</div>
-                                    </div>
-                                `).join('')}
+                                ${d.education.map(e => `<div><div class="font-bold">${e.degree}</div><div class="text-sm opacity-70">${e.school}, ${e.year}</div></div>`).join('')}
                             </div>
                         </section>
                     </div>
                 </div>`;
             } 
-            /* --- TEMPLATE CLASSIC (Top Header) --- */
-            else if (d.config.template === 'classic') {
-                contentHTML = `
-                <div class="p-12 h-full bg-white cv-page">
-                    <header class="text-center border-b-2 pb-8 mb-8" style="border-color: #333;">
-                        ${d.photo ? `<div class="w-24 h-24 mx-auto mb-4 rounded-full bg-cover bg-center" style="background-image: url('${d.photo}');"></div>` : ''}
-                        <h1 class="text-4xl font-bold uppercase tracking-wide mb-2 text-gray-900">${d.personal.name}</h1>
-                        <p class="text-xl font-medium mb-4 cv-primary">${d.personal.title}</p>
-                        <div class="flex justify-center gap-4 text-sm text-gray-600 flex-wrap">
-                            <span>${d.personal.email}</span>
-                            <span>•</span>
-                            <span>${d.personal.phone}</span>
-                            <span>•</span>
-                            <span>${d.personal.location}</span>
+            // 2. CLASSIC
+            else if (c.template === 'classic') {
+                html = `
+                <div class="p-12 h-full bg-white text-[var(--color-text)]">
+                    <div class="text-center border-b-2 border-slate-800 pb-8 mb-8">
+                        <h1 class="text-4xl font-bold uppercase tracking-wide mb-2">${d.personal.name}</h1>
+                        <p class="text-xl font-medium mb-4 text-[var(--color-primary)]">${d.personal.title}</p>
+                        <div class="flex justify-center gap-4 text-sm opacity-70 flex-wrap">
+                            <span>${d.personal.email}</span><span>•</span><span>${d.personal.phone}</span><span>•</span><span>${d.personal.location}</span>
                         </div>
-                    </header>
-
+                    </div>
                     <section class="mb-8">
-                        <h3 class="uppercase font-bold text-lg border-b mb-4 pb-1 cv-primary" style="border-color: #eee;">Profilo</h3>
-                        <p class="text-gray-700 leading-relaxed">${d.personal.summary}</p>
+                        <h3 class="uppercase font-bold text-lg border-b mb-4 pb-1 text-[var(--color-primary)] border-slate-200">Profilo</h3>
+                        <p class="opacity-80 leading-relaxed">${d.personal.summary}</p>
                     </section>
-
                     <section class="mb-8">
-                        <h3 class="uppercase font-bold text-lg border-b mb-6 pb-1 cv-primary" style="border-color: #eee;">Esperienza Professionale</h3>
-                        ${d.experience.map(exp => `
+                        <h3 class="uppercase font-bold text-lg border-b mb-6 pb-1 text-[var(--color-primary)] border-slate-200">Esperienza</h3>
+                        ${d.experience.map(e => `
                             <div class="grid grid-cols-[1fr_3fr] gap-6 mb-6">
-                                <div class="text-right text-sm font-bold text-gray-500 pt-1">${exp.start} - ${exp.end}</div>
+                                <div class="text-right text-sm font-bold opacity-60 pt-1">${e.start} - ${e.end}</div>
                                 <div>
-                                    <h4 class="font-bold text-lg text-gray-900">${exp.role}</h4>
-                                    <div class="text-sm italic mb-2 cv-primary">${exp.company}</div>
-                                    <p class="text-gray-700 text-sm">${exp.desc}</p>
+                                    <h4 class="font-bold text-lg">${e.role}</h4>
+                                    <div class="text-sm italic mb-2 text-[var(--color-primary)]">${e.company}</div>
+                                    <p class="opacity-80 text-sm">${e.desc}</p>
                                 </div>
                             </div>
                         `).join('')}
                     </section>
-
                     <div class="flex gap-8">
                         <section class="flex-1">
-                            <h3 class="uppercase font-bold text-lg border-b mb-4 pb-1 cv-primary" style="border-color: #eee;">Istruzione</h3>
-                            ${d.education.map(edu => `
-                                <div class="mb-4">
-                                    <div class="font-bold text-gray-900">${edu.degree}</div>
-                                    <div class="text-sm text-gray-600">${edu.school}, ${edu.year}</div>
-                                </div>
-                            `).join('')}
+                            <h3 class="uppercase font-bold text-lg border-b mb-4 pb-1 text-[var(--color-primary)] border-slate-200">Istruzione</h3>
+                            ${d.education.map(e => `<div class="mb-4"><div class="font-bold">${e.degree}</div><div class="text-sm opacity-70">${e.school}, ${e.year}</div></div>`).join('')}
                         </section>
                         <section class="flex-1">
-                            <h3 class="uppercase font-bold text-lg border-b mb-4 pb-1 cv-primary" style="border-color: #eee;">Competenze</h3>
-                            <p class="text-gray-700 text-sm">${d.skills}</p>
+                            <h3 class="uppercase font-bold text-lg border-b mb-4 pb-1 text-[var(--color-primary)] border-slate-200">Skills</h3>
+                            <p class="opacity-80 text-sm">${d.skills}</p>
                         </section>
                     </div>
                 </div>`;
             }
-            /* --- TEMPLATE MINIMAL (Left Border) --- */
-            else { // minimal
-                contentHTML = `
-                <div class="p-12 h-full bg-white cv-page grid grid-cols-[1fr_3fr] gap-12">
-                     <div class="pt-2 text-right">
-                        ${d.photo ? `<div class="w-24 h-24 ml-auto mb-6 bg-cover bg-center grayscale" style="background-image: url('${d.photo}')"></div>` : ''}
-
-                        <div class="mb-8 space-y-2 text-sm">
-                            <h3 class="text-xs font-bold uppercase tracking-widest mb-3 border-b pb-1" style="border-color: #eee;">Contatti</h3>
-                            <div class="break-all font-medium">${d.personal.email}</div>
-                            <div class="font-medium">${d.personal.phone}</div>
-                            <div class="font-medium">${d.personal.location}</div>
+            // 3. MINIMAL
+            else {
+                html = `
+                <div class="p-12 h-full bg-white text-[var(--color-text)] grid grid-cols-[2fr_1fr] gap-12">
+                    <div>
+                        <h1 class="text-5xl font-light mb-2 leading-none">${d.personal.name}</h1>
+                        <p class="text-lg uppercase tracking-widest font-bold mb-10 text-[var(--color-primary)]">${d.personal.title}</p>
+                        <div class="mb-10 pl-6 border-l-4" style="border-color: var(--color-primary)">
+                            <p class="italic opacity-80">${d.personal.summary}</p>
                         </div>
-
-                        <div class="mb-8">
-                            <h3 class="text-xs font-bold uppercase tracking-widest mb-4 border-b pb-2" style="border-color: #eee;">Istruzione</h3>
-                            ${d.education.map(edu => `
-                                <div class="mb-4">
-                                    <div class="font-bold text-gray-900">${edu.degree}</div>
-                                    <div class="text-xs text-gray-500">${edu.school}</div>
-                                    <div class="text-xs text-gray-400">${edu.year}</div>
-                                </div>
-                            `).join('')}
-                        </div>
-
-                        <div>
-                            <h3 class="text-xs font-bold uppercase tracking-widest mb-4 border-b pb-2" style="border-color: #eee;">Skills</h3>
-                            <div class="flex flex-wrap justify-end gap-2">
-                                ${skillsArr.map((s, i) => `<span class="border px-2 py-1 text-xs text-gray-600 border-gray-300">${s.trim()}</span>`).join('')}
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div style="border-left: 5px solid ${c}; padding-left: 20px;">
-                        <div class="mb-8">
-                            <h1 class="text-4xl font-bold leading-tight cv-primary">${d.personal.name}</h1>
-                            <p class="text-xl font-light text-gray-500 mt-1">${d.personal.title}</p>
-                        </div>
-
-                        <section class="mb-8">
-                            <h3 class="uppercase text-md font-bold tracking-widest text-gray-500 border-b pb-1 mb-3">Profilo</h3>
-                            <p class="text-gray-700 leading-relaxed">${d.personal.summary}</p>
-                        </section>
-                        
-                        <section class="mb-8">
-                            <h3 class="uppercase text-md font-bold tracking-widest text-gray-500 border-b pb-1 mb-4">Esperienza</h3>
-                            <div class="space-y-6">
-                                ${d.experience.map(exp => `
+                        <section>
+                            <h3 class="text-sm font-bold uppercase opacity-50 tracking-widest mb-6">Esperienza</h3>
+                            <div class="space-y-8">
+                                ${d.experience.map(e => `
                                     <div>
-                                        <div class="flex justify-between items-baseline mb-1">
-                                            <h4 class="font-bold text-lg text-gray-800">${exp.role}</h4>
-                                            <span class="text-xs font-bold text-gray-600">${exp.start} - ${exp.end}</span>
-                                        </div>
-                                        <div class="text-sm font-semibold mb-2 cv-primary">${exp.company}, ${exp.location}</div>
-                                        <p class="text-gray-600 text-sm whitespace-pre-line">${exp.desc}</p>
+                                        <h4 class="text-xl font-bold">${e.role}</h4>
+                                        <div class="text-sm font-bold mb-2 mt-1 text-[var(--color-primary)]">${e.company}</div>
+                                        <p class="opacity-80 text-sm leading-relaxed">${e.desc}</p>
                                     </div>
                                 `).join('')}
                             </div>
                         </section>
                     </div>
+                    <div class="text-right pt-2">
+                        ${d.photo ? `<div class="w-32 h-32 ml-auto mb-8 bg-cover bg-center grayscale" style="background-image: url('${d.photo}')"></div>` : ''}
+                        <div class="mb-10 space-y-2 text-sm">
+                            <h3 class="text-xs font-bold uppercase opacity-50 tracking-widest mb-3">Contatti</h3>
+                            <div class="font-medium break-all">${d.personal.email}</div>
+                            <div class="font-medium">${d.personal.phone}</div>
+                            <div class="font-medium">${d.personal.location}</div>
+                        </div>
+                        <div class="mb-10">
+                            <h3 class="text-xs font-bold uppercase opacity-50 tracking-widest mb-4 border-b pb-2">Istruzione</h3>
+                            ${d.education.map(e => `<div class="mb-4"><div class="font-bold">${e.degree}</div><div class="text-xs opacity-60">${e.school}</div><div class="text-xs opacity-40">${e.year}</div></div>`).join('')}
+                        </div>
+                        <div>
+                            <h3 class="text-xs font-bold uppercase opacity-50 tracking-widest mb-4 border-b pb-2">Skills</h3>
+                            <div class="flex flex-wrap justify-end gap-2">
+                                ${d.skills.split(',').filter(s=>s.trim()).map(s => `<span class="border px-2 py-1 text-xs opacity-70 border-slate-300">${s.trim()}</span>`).join('')}
+                            </div>
+                        </div>
+                    </div>
                 </div>`;
             }
-
-            document.getElementById('cv-render-target').innerHTML = contentHTML;
+            
+            target.innerHTML = html;
         },
 
-        // --- RESPONSIVE LOGIC ---
         autoScale: function() {
             const container = document.getElementById('preview-container');
             const page = document.getElementById('cv-render-target');
-            const badge = document.getElementById('zoom-level');
-            
-            if (!container || !page) return;
-
-            const A4_WIDTH = 794; 
-            let availW = container.clientWidth - 40; 
-            if (availW <= 0) availW = 400; 
-
-            let scale = availW / A4_WIDTH;
-            if (scale > 1) scale = 1; 
-
+            if(!container || !page) return;
+            const availW = container.clientWidth - 32;
+            const scale = Math.min(availW / 794, 1); // 794px = 210mm @ 96dpi
             page.style.transform = `scale(${scale})`;
-            
-            // Adjust height container
-            const scaledH = 1123 * scale;
-            page.style.marginBottom = `-${1123 - scaledH}px`; 
-
-            if(badge) badge.innerText = `${Math.round(scale*100)}%`;
+            page.style.marginBottom = `-${1123 - (1123 * scale)}px`; // Compensate whitespace
+            document.getElementById('zoom-level').innerText = `${Math.round(scale*100)}%`;
         },
 
-        // --- UI UTILITIES ---
-        switchTab: function(id, button) {
-            document.querySelectorAll('.tab-btn').forEach(b => {
-                b.classList.remove('active', 'text-white', 'border-blue-500', 'bg-blue-900/20');
+        switchTab: function(t, btn) {
+            document.querySelectorAll('#tab-content, #tab-design').forEach(b => {
+                b.classList.remove('bg-slate-700', 'text-white');
                 b.classList.add('text-slate-400', 'hover:text-white');
             });
-
-            button.classList.add('active', 'text-white', 'border-blue-500', 'bg-blue-900/20');
-            button.classList.remove('text-slate-400', 'hover:text-white');
-
-            document.getElementById('panel-content').style.display = id === 'content' ? 'block' : 'none';
-            document.getElementById('panel-design').style.display = id === 'design' ? 'block' : 'none';
+            btn.classList.remove('text-slate-400', 'hover:text-white');
+            btn.classList.add('bg-slate-700', 'text-white');
+            document.getElementById('panel-content').style.display = t === 'content' ? 'block' : 'none';
+            document.getElementById('panel-design').style.display = t === 'design' ? 'block' : 'none';
         }
     };
 
-    // Avvio dell'applicazione
     document.addEventListener('DOMContentLoaded', () => cvApp.init());
 </script>
 
