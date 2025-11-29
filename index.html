@@ -8,665 +8,546 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Font Awesome & Google Fonts -->
+    <!-- Font Awesome & Fonts -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Poppins:wght@300;400;600;700&family=Merriweather:wght@300;400;700&family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
 
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        poppins: ['Poppins', 'sans-serif'],
-                        serif: ['Merriweather', 'serif'],
-                        mono: ['Roboto Mono', 'monospace'],
-                    },
-                    colors: {
-                        brand: '#2563eb',
-                        dark: '#0f172a',
-                    }
-                }
-            }
-        }
-    </script>
-
     <style>
-        /* --- STILI BASE APP --- */
-        body, html { 
-            margin: 0; 
-            padding: 0; 
-            height: 100%; 
-            height: 100dvh; /* Fix per Safari Mobile */
-            background: #f1f5f9; 
-            font-family: 'Inter', sans-serif; 
-            overflow: hidden; 
-        }
-        
-        .app-wrapper { 
-            display: flex; 
-            height: 100%; 
-            width: 100%;
-            flex-direction: row; 
-            position: relative;
-        }
-        
-        /* --- EDITOR --- */
-        .editor-panel { 
-            width: 450px; 
-            background: white; 
-            border-right: 1px solid #e2e8f0; 
-            display: flex; 
-            flex-direction: column; 
-            z-index: 50; 
-            box-shadow: 10px 0 30px -10px rgba(0,0,0,0.1); 
-            height: 100%;
-        }
-        .editor-scroll { 
-            flex: 1; 
-            overflow-y: auto; 
-            padding: 20px; 
-            scrollbar-width: thin; 
-            -webkit-overflow-scrolling: touch; 
-            padding-bottom: 100px; /* Spazio extra per mobile */
-        }
-        
-        /* --- ANTEPRIMA --- */
-        .preview-panel { 
-            flex: 1; 
-            background: #94a3b8; 
-            position: relative; 
-            display: flex; 
-            justify-content: center; 
-            align-items: flex-start; 
-            padding-top: 40px; 
-            overflow: hidden; 
-            height: 100%;
-        }
-        .preview-panel {
-            background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
-            background-size: 20px 20px;
-        }
+        /* --- RESET GLOBALE --- */
+        #cv-widget-root { font-family: 'Inter', sans-serif; color: #1e293b; line-height: 1.5; background: #f1f5f9; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        #cv-widget-root * { box-sizing: border-box; }
 
-        /* --- FOGLIO A4 --- */
-        #cv-paper {
+        /* --- LAYOUT RESPONSIVE --- */
+        .main-area { display: flex; flex: 1; overflow: hidden; position: relative; }
+        
+        /* Pannello Editor (Sinistra) */
+        .editor-panel { width: 400px; background: white; border-right: 1px solid #e2e8f0; display: flex; flex-direction: column; z-index: 20; box-shadow: 5px 0 15px rgba(0,0,0,0.05); }
+        .editor-content { flex: 1; overflow-y: auto; padding: 20px; }
+        
+        /* Pannello Anteprima (Destra) */
+        .preview-panel { flex: 1; background: #94a3b8; display: flex; justify-content: center; padding: 40px; overflow-y: auto; position: relative; }
+        
+        /* --- FOGLIO A4 (Il cuore) --- */
+        .cv-paper {
             width: 210mm;
-            min-height: 297mm;
-            background-color: white;
-            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
-            transform-origin: top center;
-            transition: transform 0.1s ease-out;
+            min-height: 297mm; /* Altezza A4 */
+            background: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
             position: relative;
-            margin-bottom: 100px;
-            color: #1e293b;
-            overflow: hidden; 
+            transform-origin: top center;
+            /* Importante per non tagliare contenuti */
+            height: auto; 
+            overflow: hidden;
         }
 
-        /* BARRA LATERALE INFINITA (Fix definitivo) */
-        #cv-paper.layout-sidebar-left::before {
-            content: "";
-            position: absolute;
-            top: 0; left: 0; bottom: 0;
+        /* Gestione Barra Laterale "Infinita" */
+        .cv-sidebar-layout {
+            display: flex;
+            min-height: 297mm; /* Assicura che il flex container copra tutta la pagina */
+            height: 100%;
+        }
+        .cv-col-left {
             width: 35%;
-            background-color: var(--col-side-bg);
-            z-index: 0; 
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
+            background-color: var(--sidebar-bg, #1e293b);
+            color: var(--sidebar-text, white);
+            min-height: 100%; /* Forza l'altezza */
+            flex-shrink: 0;
+        }
+        .cv-col-right {
+            width: 65%;
+            background-color: white;
+            flex-grow: 1;
         }
 
-        /* --- MOBILE --- */
-        .mobile-tabs { display: none; }
-        
+        /* --- MOBILE MODE --- */
+        .mobile-nav { display: none; }
+
         @media (max-width: 900px) {
-            .app-wrapper { flex-direction: column; }
+            #cv-widget-root { height: auto; min-height: 100vh; }
+            .main-area { flex-direction: column; height: auto; padding-bottom: 70px; } /* Spazio per nav */
             
-            .editor-panel { 
-                width: 100%; 
-                border-right: none; 
-                position: absolute; 
-                top: 0; bottom: 60px; left: 0; right: 0; 
-                height: auto;
-            }
-            .preview-panel { 
-                position: absolute; 
-                top: 0; bottom: 60px; left: 0; right: 0; 
-                z-index: 40; 
-                background: #e2e8f0; 
-                height: auto;
-                padding-top: 20px;
-            }
+            .editor-panel { width: 100%; height: auto; border-right: none; display: none; }
+            .editor-panel.active { display: flex; }
             
-            .mobile-tabs { 
-                display: flex; 
-                position: fixed; 
-                bottom: 0; left: 0; right: 0; 
-                height: 60px; 
-                background: white; 
-                border-top: 1px solid #e2e8f0; 
-                z-index: 60; 
-                box-shadow: 0 -4px 10px rgba(0,0,0,0.05);
-            }
-            .mob-btn { 
-                flex: 1; 
-                display: flex; 
-                flex-direction: column; 
-                align-items: center; 
-                justify-content: center; 
-                font-size: 10px; 
-                color: #64748b; 
-                font-weight: 600; 
-                border: none;
-                background: transparent;
-            }
-            .mob-btn.active { color: #2563eb; background: #eff6ff; }
-            .mob-btn i { font-size: 18px; margin-bottom: 2px; }
+            .preview-panel { width: 100%; height: auto; display: none; padding: 10px; background: #e2e8f0; }
+            .preview-panel.active { display: flex; }
+            
+            .cv-paper { transform: scale(1) !important; width: 100% !important; min-height: auto; box-shadow: none; }
 
-            body.view-editor .preview-panel { display: none !important; }
-            body.view-preview .editor-panel { display: none !important; }
+            .mobile-nav { 
+                display: flex; position: fixed; bottom: 0; left: 0; width: 100%; 
+                background: white; border-top: 1px solid #e2e8f0; z-index: 100; 
+                justify-content: space-around; padding: 10px; box-shadow: 0 -5px 10px rgba(0,0,0,0.05);
+            }
+            .mob-btn { flex: 1; text-align: center; font-size: 10px; color: #64748b; font-weight: 600; background: none; border: none; }
+            .mob-btn i { display: block; font-size: 18px; margin-bottom: 3px; }
+            .mob-btn.active { color: #2563eb; }
         }
 
-        /* --- CSS STAMPA CORRETTO --- */
+        /* --- STAMPA PDF (FIX DEFINITIVO) --- */
         @media print {
-            /* Nascondi UI */
-            .editor-panel, .mobile-tabs, .zoom-badge, .header-bar, .print-hidden {
-                display: none !important;
-            }
-
-            /* Reset Layout App */
-            body, html, .app-wrapper, .preview-panel {
-                background: white !important;
-                height: auto !important;
-                width: 100% !important;
-                overflow: visible !important;
+            /* Nascondi tutto tranne il foglio */
+            body > *:not(#cv-print-container) { display: none !important; }
+            #cv-widget-root { display: none !important; }
+            
+            /* Contenitore di stampa speciale */
+            #cv-print-container {
                 display: block !important;
-                position: static !important;
-                margin: 0 !important;
-                padding: 0 !important;
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                margin: 0;
+                padding: 0;
+                z-index: 9999;
             }
 
-            /* Foglio CV */
-            #cv-paper {
-                position: relative !important;
-                left: 0 !important;
-                top: 0 !important;
-                width: 100% !important;
-                min-height: 100vh !important;
-                margin: 0 !important;
-                padding: 0 !important;
+            /* Configurazione Foglio in stampa */
+            .cv-paper {
                 box-shadow: none !important;
-                transform: none !important;
-                border: none !important;
+                margin: 0 !important;
+                width: 100% !important;
+                min-height: 100vh !important; /* Forza altezza pagina intera */
+                height: auto !important;
+                page-break-after: auto;
+                transform: none !important; /* Rimuovi zoom JS */
                 
-                /* Forza Stampa Colori */
+                /* Forza Background Colori */
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
                 background-color: white !important;
             }
-            
-            /* Forza visibilità contenuto interno */
-            #cv-paper * {
-                visibility: visible !important;
+
+            /* Forza altezza colonne */
+            .cv-sidebar-layout, .cv-col-left {
+                height: 100% !important;
+                min-height: 100vh !important; 
             }
 
-            /* Interruzioni pagina */
-            .cv-block, section { page-break-inside: avoid; }
-            
             @page { margin: 0; size: auto; }
         }
+        
+        /* Utility Classes per JS */
+        .hidden { display: none !important; }
     </style>
 </head>
-<body class="view-editor" id="body-root">
+<body>
 
-<div class="app-wrapper">
-
-    <!-- SIDEBAR EDITOR -->
-    <div class="editor-panel">
-        <!-- HEADER -->
-        <div class="p-4 border-b border-gray-200 bg-white sticky top-0 z-30 flex justify-between items-center shadow-sm header-bar">
+<!-- APP ROOT -->
+<div id="cv-widget-root">
+    
+    <!-- HEADER -->
+    <header class="bg-white border-b border-gray-200 px-4 py-3 flex justify-between items-center z-30 shrink-0">
+        <div class="flex items-center gap-2">
+            <div class="bg-blue-600 text-white w-8 h-8 rounded-lg flex items-center justify-center font-bold text-lg">CV</div>
             <div>
-                <h1 class="font-extrabold text-slate-800 text-lg flex items-center gap-2">
-                    <i class="fa-solid fa-layer-group text-blue-600"></i> CV Creator
-                </h1>
-                <a href="https://www.nikitalorusso.com" target="_blank" class="text-[10px] uppercase font-bold text-slate-400 hover:text-blue-600 tracking-wider transition-colors">
-                    by Nikita Lorusso
-                </a>
+                <h1 class="text-sm font-bold text-slate-800 leading-tight">Creator</h1>
+                <a href="https://www.nikitalorusso.it" target="_blank" class="text-[10px] text-blue-600 hover:underline uppercase tracking-wider font-bold">by Nikita Lorusso</a>
             </div>
-            <a href="https://www.nikitalorusso.com/servizi" target="_blank" class="bg-slate-900 text-white text-xs px-3 py-2 rounded-lg font-bold hover:bg-blue-600 transition-colors flex items-center gap-2 shadow-lg transform hover:-translate-y-0.5">
-                Servizi <i class="fa-solid fa-arrow-right"></i>
-            </a>
         </div>
-
-        <!-- TABS -->
-        <div class="flex p-2 gap-2 bg-slate-50 border-b border-gray-200 header-bar">
-            <button onclick="app.setTab('content')" id="tab-btn-content" class="flex-1 py-2 text-xs font-bold uppercase rounded-md bg-white border border-gray-200 text-blue-600 shadow-sm transition-all">Dati</button>
-            <button onclick="app.setTab('design')" id="tab-btn-design" class="flex-1 py-2 text-xs font-bold uppercase rounded-md text-slate-500 hover:bg-white hover:shadow-sm transition-all">Design</button>
-        </div>
-
-        <!-- SCROLL AREA -->
-        <div class="editor-scroll">
-            
-            <!-- PANEL: CONTENT -->
-            <div id="panel-content" class="space-y-6">
-                <!-- Foto -->
-                <div class="bg-blue-50/50 p-4 rounded-xl border border-blue-100 flex items-center gap-4">
-                    <div id="photo-preview" class="w-16 h-16 rounded-full bg-white border-2 border-blue-200 flex items-center justify-center overflow-hidden shrink-0 text-blue-200">
-                        <i class="fa-solid fa-user text-2xl"></i>
-                    </div>
-                    <div class="w-full">
-                        <label class="text-[10px] uppercase font-bold text-blue-400 mb-1 block">Foto Profilo</label>
-                        <div class="flex gap-2">
-                            <button onclick="document.getElementById('upl').click()" class="flex-1 bg-blue-600 text-white text-xs font-bold py-2 rounded-lg hover:bg-blue-700 transition-colors">Carica</button>
-                            <button onclick="app.remPhoto()" class="flex-1 bg-white border border-red-200 text-red-500 text-xs font-bold py-2 rounded-lg hover:bg-red-50 transition-colors">Elimina</button>
-                            <input type="file" id="upl" hidden accept="image/*" onchange="app.handlePhoto(this)">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Dati -->
-                <div class="space-y-3">
-                    <input type="text" data-bind="personal.name" placeholder="Nome Completo" class="w-full p-3 bg-white border border-gray-300 rounded-lg text-sm font-bold focus:border-blue-500 outline-none transition-shadow focus:shadow-md">
-                    <input type="text" data-bind="personal.title" placeholder="Job Title" class="w-full p-3 bg-white border border-gray-300 rounded-lg text-sm focus:border-blue-500 outline-none transition-shadow focus:shadow-md">
-                    <div class="grid grid-cols-2 gap-2">
-                        <input type="text" data-bind="personal.email" placeholder="Email" class="p-3 bg-white border border-gray-300 rounded-lg text-sm focus:border-blue-500 outline-none transition-shadow focus:shadow-md">
-                        <input type="text" data-bind="personal.phone" placeholder="Telefono" class="p-3 bg-white border border-gray-300 rounded-lg text-sm focus:border-blue-500 outline-none transition-shadow focus:shadow-md">
-                    </div>
-                    <input type="text" data-bind="personal.location" placeholder="Città" class="w-full p-3 bg-white border border-gray-300 rounded-lg text-sm focus:border-blue-500 outline-none transition-shadow focus:shadow-md">
-                    <textarea data-bind="personal.summary" rows="4" placeholder="Breve bio professionale..." class="w-full p-3 bg-white border border-gray-300 rounded-lg text-sm focus:border-blue-500 outline-none resize-none transition-shadow focus:shadow-md"></textarea>
-                </div>
-
-                <!-- Liste -->
-                <div class="space-y-4">
-                    <div class="flex justify-between items-end border-b border-gray-200 pb-1">
-                        <label class="text-xs font-bold text-slate-400 uppercase">Esperienza</label>
-                        <button onclick="app.add('experience')" class="text-blue-600 text-xs font-bold hover:bg-blue-50 px-2 py-1 rounded transition-colors">+ Aggiungi</button>
-                    </div>
-                    <div id="list-experience" class="space-y-3"></div>
-
-                    <div class="flex justify-between items-end border-b border-gray-200 pb-1 pt-2">
-                        <label class="text-xs font-bold text-slate-400 uppercase">Istruzione</label>
-                        <button onclick="app.add('education')" class="text-blue-600 text-xs font-bold hover:bg-blue-50 px-2 py-1 rounded transition-colors">+ Aggiungi</button>
-                    </div>
-                    <div id="list-education" class="space-y-3"></div>
-                </div>
-
-                <div>
-                    <label class="text-xs font-bold text-slate-400 uppercase mb-1 block">Skills (Virgola)</label>
-                    <textarea data-bind="skills" rows="2" class="w-full p-3 bg-white border border-gray-300 rounded-lg text-sm focus:border-blue-500 outline-none resize-none transition-shadow focus:shadow-md"></textarea>
-                </div>
-            </div>
-
-            <!-- PANEL: DESIGN -->
-            <div id="panel-design" class="hidden space-y-8">
-                <!-- Layout -->
-                <div>
-                    <label class="text-xs font-bold text-slate-400 uppercase mb-3 block">Modello</label>
-                    <div class="grid grid-cols-3 gap-2">
-                        <button onclick="app.setTpl('modern')" id="tpl-modern" class="tpl-btn active border-2 border-blue-600 bg-blue-50 p-2 rounded-lg text-center transition-all hover:shadow-md">
-                            <div class="h-8 w-full bg-white border border-gray-300 mb-1 flex overflow-hidden"><div class="w-1/3 bg-slate-400"></div></div>
-                            <span class="text-[10px] font-bold text-blue-700">Modern</span>
-                        </button>
-                        <button onclick="app.setTpl('classic')" id="tpl-classic" class="tpl-btn border-2 border-gray-200 p-2 rounded-lg text-center hover:bg-slate-50 transition-all hover:shadow-md">
-                            <div class="h-8 w-full bg-white border border-gray-300 mb-1 flex flex-col"><div class="w-full h-2 border-b border-gray-300"></div></div>
-                            <span class="text-[10px] font-bold text-slate-500">Classic</span>
-                        </button>
-                        <button onclick="app.setTpl('minimal')" id="tpl-minimal" class="tpl-btn border-2 border-gray-200 p-2 rounded-lg text-center hover:bg-slate-50 transition-all hover:shadow-md">
-                            <div class="h-8 w-full bg-white border border-gray-300 mb-1 flex"><div class="w-1 h-full bg-slate-400 ml-1"></div></div>
-                            <span class="text-[10px] font-bold text-slate-500">Minimal</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Config -->
-                <div class="space-y-3">
-                    <div class="flex items-center justify-between p-2 border border-gray-200 rounded-lg">
-                        <span class="text-xs font-bold text-slate-600">Colore Accento</span>
-                        <input type="color" oninput="app.cfg('color', this.value)" value="#2563eb" class="w-8 h-8 rounded cursor-pointer border-none p-0">
-                    </div>
-                    <div class="flex items-center justify-between p-2 border border-gray-200 rounded-lg">
-                        <span class="text-xs font-bold text-slate-600">Sfondo Sidebar</span>
-                        <input type="color" oninput="app.cfg('sideBg', this.value)" value="#1e293b" class="w-8 h-8 rounded cursor-pointer border-none p-0">
-                    </div>
-                    <div class="flex items-center justify-between p-2 border border-gray-200 rounded-lg">
-                        <span class="text-xs font-bold text-slate-600">Testo Sidebar</span>
-                        <input type="color" oninput="app.cfg('sideText', this.value)" value="#ffffff" class="w-8 h-8 rounded cursor-pointer border-none p-0">
-                    </div>
-                </div>
-
-                <div>
-                    <label class="text-xs font-bold text-slate-400 uppercase mb-2 block">Font</label>
-                    <select onchange="app.cfg('font', this.value)" class="w-full p-3 border border-gray-300 rounded-lg text-sm bg-white outline-none focus:border-blue-500">
-                        <option value="Inter, sans-serif">Inter (Standard)</option>
-                        <option value="Poppins, sans-serif">Poppins (Moderno)</option>
-                        <option value="Merriweather, serif">Merriweather (Elegante)</option>
-                        <option value="Roboto Mono, monospace">Roboto Mono (Tech)</option>
-                    </select>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- FOOTER -->
-        <div class="p-4 border-t border-gray-200 bg-white header-bar">
-            <button onclick="app.download()" class="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-xl shadow-lg flex items-center justify-center gap-2 transition-transform active:scale-95">
-                <i class="fa-solid fa-download"></i> Scarica / Stampa PDF
+        <div class="flex gap-2">
+            <button onclick="cvApp.reset()" class="bg-slate-100 text-slate-600 px-3 py-2 rounded-lg text-xs font-bold hover:bg-slate-200 transition-colors">
+                <i class="fa-solid fa-trash-can sm:mr-1"></i> <span class="hidden sm:inline">Reset</span>
+            </button>
+            <button onclick="cvApp.print()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-blue-700 transition-colors shadow-lg flex items-center gap-2">
+                <i class="fa-solid fa-download"></i> Scarica PDF
             </button>
         </div>
-    </div>
+    </header>
 
-    <!-- PREVIEW -->
-    <div class="preview-panel" id="preview-container">
-        <div class="absolute top-4 right-4 bg-slate-800/80 text-white text-[10px] font-bold px-3 py-1 rounded-full z-10 zoom-badge print-hidden backdrop-blur-md">
-            Zoom: <span id="zoom-txt">100%</span>
-        </div>
+    <div class="main-area">
         
-        <!-- FOGLIO A4 -->
-        <div id="cv-paper">
-            <!-- Renderizzato da JS -->
+        <!-- EDITOR -->
+        <div id="editor-panel" class="editor-panel active">
+            <!-- TABS EDITOR -->
+            <div class="flex border-b border-gray-200 bg-slate-50">
+                <button onclick="cvApp.setTab('content')" id="tab-content" class="flex-1 py-3 text-xs font-bold uppercase text-blue-600 border-b-2 border-blue-600 bg-white">Dati</button>
+                <button onclick="cvApp.setTab('design')" id="tab-design" class="flex-1 py-3 text-xs font-bold uppercase text-slate-500 hover:text-slate-700">Design</button>
+            </div>
+
+            <div class="editor-content custom-scrollbar">
+                
+                <!-- PANNELLO DATI -->
+                <div id="view-content" class="space-y-6">
+                    <!-- Foto -->
+                    <div class="bg-blue-50 p-3 rounded-lg border border-blue-100 flex items-center gap-3">
+                        <div id="ui-photo" class="w-12 h-12 rounded-full bg-white border-2 border-blue-200 overflow-hidden flex items-center justify-center text-blue-200">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+                        <div class="flex-1 flex gap-2">
+                            <button onclick="document.getElementById('upl').click()" class="bg-blue-600 text-white text-xs font-bold px-3 py-1.5 rounded flex-1">Carica Foto</button>
+                            <button onclick="cvApp.delPhoto()" class="bg-white border border-red-200 text-red-500 text-xs font-bold px-3 py-1.5 rounded flex-1">Rimuovi</button>
+                            <input type="file" id="upl" hidden accept="image/*" onchange="cvApp.addPhoto(this)">
+                        </div>
+                    </div>
+
+                    <!-- Input -->
+                    <div class="space-y-3">
+                        <input type="text" data-key="name" placeholder="Nome Completo" class="w-full p-2.5 border rounded text-sm font-bold">
+                        <input type="text" data-key="title" placeholder="Titolo (es. Web Designer)" class="w-full p-2.5 border rounded text-sm">
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="text" data-key="email" placeholder="Email" class="p-2.5 border rounded text-sm">
+                            <input type="text" data-key="phone" placeholder="Telefono" class="p-2.5 border rounded text-sm">
+                        </div>
+                        <input type="text" data-key="location" placeholder="Città" class="w-full p-2.5 border rounded text-sm">
+                        <textarea data-key="summary" rows="3" placeholder="Profilo professionale..." class="w-full p-2.5 border rounded text-sm resize-none"></textarea>
+                    </div>
+
+                    <!-- Liste -->
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center border-b pb-1">
+                            <span class="text-xs font-bold uppercase text-slate-400">Esperienza</span>
+                            <button onclick="cvApp.addList('exp')" class="text-blue-600 text-xs font-bold">+ Aggiungi</button>
+                        </div>
+                        <div id="ui-exp-list" class="space-y-2"></div>
+
+                        <div class="flex justify-between items-center border-b pb-1">
+                            <span class="text-xs font-bold uppercase text-slate-400">Istruzione</span>
+                            <button onclick="cvApp.addList('edu')" class="text-blue-600 text-xs font-bold">+ Aggiungi</button>
+                        </div>
+                        <div id="ui-edu-list" class="space-y-2"></div>
+                    </div>
+
+                    <!-- Skills -->
+                    <div>
+                        <span class="text-xs font-bold uppercase text-slate-400 block mb-1">Competenze (separate da virgola)</span>
+                        <textarea data-key="skills" rows="2" class="w-full p-2.5 border rounded text-sm resize-none"></textarea>
+                    </div>
+                </div>
+
+                <!-- PANNELLO DESIGN -->
+                <div id="view-design" class="hidden space-y-6">
+                    <div>
+                        <span class="text-xs font-bold uppercase text-slate-400 block mb-2">Template</span>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="cvApp.setTpl('modern')" class="border-2 border-blue-600 bg-blue-50 p-2 rounded text-center text-xs font-bold text-blue-700 tpl-btn" id="btn-tpl-modern">Moderno</button>
+                            <button onclick="cvApp.setTpl('classic')" class="border-2 border-gray-200 p-2 rounded text-center text-xs font-bold text-gray-500 tpl-btn" id="btn-tpl-classic">Classico</button>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <span class="text-xs font-bold uppercase text-slate-400 block mb-2">Colori</span>
+                        <div class="flex items-center justify-between p-2 border rounded mb-2">
+                            <span class="text-xs font-bold">Colore Principale</span>
+                            <input type="color" oninput="cvApp.setColor('accent', this.value)" value="#2563eb" class="w-8 h-8 rounded cursor-pointer">
+                        </div>
+                        <div class="flex items-center justify-between p-2 border rounded">
+                            <span class="text-xs font-bold">Sfondo Colonna</span>
+                            <input type="color" oninput="cvApp.setColor('bg', this.value)" value="#1e293b" class="w-8 h-8 rounded cursor-pointer">
+                        </div>
+                    </div>
+
+                    <div>
+                        <span class="text-xs font-bold uppercase text-slate-400 block mb-2">Font</span>
+                        <select onchange="cvApp.setFont(this.value)" class="w-full p-2 border rounded text-sm bg-white">
+                            <option value="Inter, sans-serif">Inter</option>
+                            <option value="Poppins, sans-serif">Poppins</option>
+                            <option value="Merriweather, serif">Merriweather</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Call to Action Nikita -->
+                <div class="mt-8 pt-4 border-t border-gray-200 text-center">
+                    <p class="text-xs text-slate-500 mb-2">Hai bisogno di un sito web professionale?</p>
+                    <a href="https://www.nikitalorusso.it" target="_blank" class="block w-full bg-slate-900 text-white text-xs font-bold py-3 rounded-lg hover:bg-slate-800 transition-colors">
+                        Contatta Nikita Lorusso <i class="fa-solid fa-arrow-right ml-1"></i>
+                    </a>
+                </div>
+            </div>
         </div>
+
+        <!-- ANTEPRIMA -->
+        <div id="preview-panel" class="preview-panel">
+            <!-- Il CV viene iniettato qui -->
+            <div id="cv-container"></div>
+        </div>
+
     </div>
 
-    <!-- MOBILE TABS -->
-    <div class="mobile-tabs mobile-only print-hidden">
-        <button onclick="app.mob('editor')" class="mob-btn active" id="mb-edit"><i class="fa-solid fa-pen"></i>Editor</button>
-        <button onclick="app.mob('preview')" class="mob-btn" id="mb-prev"><i class="fa-solid fa-eye"></i>Anteprima</button>
+    <!-- MOBILE NAV -->
+    <div class="mobile-nav">
+        <button onclick="cvApp.mob('data')" class="mob-btn active" id="mob-data"><i class="fa-solid fa-pen"></i>Dati</button>
+        <button onclick="cvApp.mob('design')" class="mob-btn" id="mob-design"><i class="fa-solid fa-palette"></i>Design</button>
+        <button onclick="cvApp.mob('preview')" class="mob-btn" id="mob-view"><i class="fa-solid fa-eye"></i>Anteprima</button>
     </div>
 
 </div>
 
+<!-- CONTENITORE STAMPA NASCOSTO -->
+<div id="cv-print-container"></div>
+
 <script>
-    const app = {
+    const cvApp = {
         data: {
-            personal: { name: 'Mario Rossi', title: 'Web Developer', email: 'mario@email.com', phone: '333 1234567', location: 'Milano', summary: 'Sviluppatore web appassionato e creativo.' },
-            experience: [{ id: 1, role: 'Frontend Dev', company: 'Tech Agency', start: '2021', end: 'Oggi', desc: 'Sviluppo interfacce responsive.' }],
-            education: [{ id: 1, degree: 'Diploma Informatica', school: 'ITIS', year: '2020' }],
-            skills: 'HTML, CSS, JS, React',
+            name: 'Mario Rossi', title: 'Digital Marketer', email: 'mario@email.com', phone: '333 1234567', location: 'Roma', summary: 'Esperto di strategie digitali.',
+            skills: 'SEO, SEM, Social Media, Analytics',
+            exp: [{id:1, role:'Manager', company:'Azienda', start:'2020', end:'Oggi', desc:'Gestione team.'}],
+            edu: [{id:1, degree:'Laurea', school:'Università', year:'2019'}],
             photo: null,
-            config: { template: 'modern', color: '#2563eb', sideBg: '#1e293b', sideText: '#ffffff', font: 'Inter, sans-serif' }
+            config: { template: 'modern', accent: '#2563eb', bg: '#1e293b', font: 'Inter, sans-serif' }
         },
 
         init() {
-            // Load
-            const s = localStorage.getItem('nl_cv_v5');
+            const s = localStorage.getItem('nikita_cv_final');
             if(s) try { this.data = {...this.data, ...JSON.parse(s)}; } catch(e){}
-            
-            this.bind(); this.renderL(); this.updPh(); this.render();
-            
-            // Auto Zoom
-            new ResizeObserver(() => this.scale()).observe(document.getElementById('preview-container'));
-            setTimeout(() => this.scale(), 100);
+            this.bind(); this.renderLists(); this.updatePhoto(); this.render();
+            // Auto Zoom per Desktop
+            window.addEventListener('resize', () => this.zoom());
+            setTimeout(() => this.zoom(), 500);
         },
 
         save() {
-            localStorage.setItem('nl_cv_v5', JSON.stringify(this.data));
+            localStorage.setItem('nikita_cv_final', JSON.stringify(this.data));
             this.render();
         },
 
         bind() {
-            document.querySelectorAll('[data-bind]').forEach(el => {
-                const [p, k] = el.getAttribute('data-bind').split('.');
-                el.value = this.data[p][k] || '';
-                el.oninput = (e) => { this.data[p][k] = e.target.value; this.save(); };
+            document.querySelectorAll('[data-key]').forEach(el => {
+                el.value = this.data[el.dataset.key] || '';
+                el.oninput = (e) => { this.data[el.dataset.key] = e.target.value; this.save(); };
             });
         },
 
-        // Foto
-        handlePhoto(el) {
+        // --- FOTO ---
+        addPhoto(el) {
             if(el.files[0]) {
                 const r = new FileReader();
-                r.onload = (e) => { this.data.photo = e.target.result; this.updPh(); this.save(); };
+                r.onload = (e) => { this.data.photo = e.target.result; this.updatePhoto(); this.save(); };
                 r.readAsDataURL(el.files[0]);
             }
         },
-        remPhoto() { this.data.photo = null; this.updPh(); this.save(); },
-        updPh() {
-            document.getElementById('photo-preview').innerHTML = this.data.photo ? 
-                `<img src="${this.data.photo}" class="w-full h-full object-cover">` : `<i class="fa-solid fa-user text-2xl"></i>`;
+        delPhoto() { this.data.photo = null; this.updatePhoto(); this.save(); },
+        updatePhoto() {
+            const el = document.getElementById('ui-photo');
+            el.innerHTML = this.data.photo ? `<img src="${this.data.photo}" class="w-full h-full object-cover">` : `<i class="fa-solid fa-user"></i>`;
         },
 
-        // Liste
-        add(t) {
-            this.data[t].unshift({ id: Date.now(), role:'Ruolo', degree:'Titolo', company:'Ente', school:'Scuola', start:'', end:'', year:'', desc:'' });
-            this.renderL(); this.save();
+        // --- LISTE ---
+        addList(t) {
+            this.data[t].unshift({id: Date.now(), role:'Ruolo', degree:'Titolo', company:'Ente', school:'Scuola', start:'', end:'', year:'', desc:''});
+            this.renderLists(); this.save();
         },
-        rem(t, id) {
-            if(confirm('Eliminare?')) { this.data[t] = this.data[t].filter(i=>i.id!==id); this.renderL(); this.save(); }
+        delList(t, id) {
+            if(confirm('Eliminare?')) { this.data[t] = this.data[t].filter(i=>i.id!==id); this.renderLists(); this.save(); }
         },
         updList(t, id, k, v) { this.data[t].find(i=>i.id===id)[k] = v; this.save(); },
-        renderL() {
-            ['experience', 'education'].forEach(t => {
-                document.getElementById('list-'+t).innerHTML = this.data[t].map(i => `
-                    <div class="bg-white border border-gray-200 p-3 rounded-lg relative group transition-shadow hover:shadow-md">
-                        <button onclick="app.rem('${t}', ${i.id})" class="absolute top-2 right-2 text-gray-300 hover:text-red-500"><i class="fa-solid fa-trash"></i></button>
-                        <input class="w-full font-bold text-sm mb-1 outline-none" value="${i[t==='experience'?'role':'degree']}" oninput="app.updList('${t}', ${i.id}, '${t==='experience'?'role':'degree'}', this.value)" placeholder="Titolo">
-                        <input class="w-full text-xs text-slate-500 mb-2 outline-none" value="${i[t==='experience'?'company':'school']}" oninput="app.updList('${t}', ${i.id}, '${t==='experience'?'company':'school'}', this.value)" placeholder="Ente">
-                        <div class="flex gap-2 mb-2">
-                            ${t==='experience' ? 
-                                `<input class="w-1/2 bg-slate-50 p-1.5 rounded text-xs outline-none" value="${i.start}" oninput="app.updList('${t}', ${i.id}, 'start', this.value)" placeholder="Da"><input class="w-1/2 bg-slate-50 p-1.5 rounded text-xs outline-none" value="${i.end}" oninput="app.updList('${t}', ${i.id}, 'end', this.value)" placeholder="A">` :
-                                `<input class="w-full bg-slate-50 p-1.5 rounded text-xs outline-none" value="${i.year}" oninput="app.updList('${t}', ${i.id}, 'year', this.value)" placeholder="Anno">`
+        renderLists() {
+            ['exp', 'edu'].forEach(t => {
+                const isExp = t==='exp';
+                document.getElementById(`ui-${t}-list`).innerHTML = this.data[t].map(i => `
+                    <div class="bg-white border p-2 rounded mb-2 relative">
+                        <button onclick="cvApp.delList('${t}', ${i.id})" class="absolute top-2 right-2 text-red-400 text-xs"><i class="fa-solid fa-trash"></i></button>
+                        <input class="w-full font-bold text-sm outline-none mb-1" value="${i[isExp?'role':'degree']}" oninput="cvApp.updList('${t}', ${i.id}, '${isExp?'role':'degree'}', this.value)" placeholder="Titolo">
+                        <input class="w-full text-xs text-gray-500 outline-none mb-1" value="${i[isExp?'company':'school']}" oninput="cvApp.updList('${t}', ${i.id}, '${isExp?'company':'school'}', this.value)" placeholder="Ente">
+                        <div class="flex gap-2 mb-1">
+                            ${isExp ? 
+                                `<input class="w-1/2 bg-slate-50 text-xs p-1 rounded" value="${i.start}" oninput="cvApp.updList('${t}', ${i.id}, 'start', this.value)" placeholder="Da">
+                                 <input class="w-1/2 bg-slate-50 text-xs p-1 rounded" value="${i.end}" oninput="cvApp.updList('${t}', ${i.id}, 'end', this.value)" placeholder="A">` :
+                                `<input class="w-full bg-slate-50 text-xs p-1 rounded" value="${i.year}" oninput="cvApp.updList('${t}', ${i.id}, 'year', this.value)" placeholder="Anno">`
                             }
                         </div>
-                        ${t==='experience' ? `<textarea class="w-full text-xs p-2 bg-slate-50 rounded outline-none resize-none" rows="2" oninput="app.updList('${t}', ${i.id}, 'desc', this.value)" placeholder="Descrizione...">${i.desc}</textarea>` : ''}
+                        ${isExp ? `<textarea class="w-full text-xs bg-slate-50 p-1 rounded resize-none" rows="2" oninput="cvApp.updList('${t}', ${i.id}, 'desc', this.value)" placeholder="Descrizione">${i.desc}</textarea>` : ''}
                     </div>
                 `).join('');
             });
         },
 
-        // Config
-        cfg(k, v) { this.data.config[k] = v; this.save(); },
+        // --- DESIGN ---
         setTpl(t) {
             this.data.config.template = t;
             document.querySelectorAll('.tpl-btn').forEach(b => {
-                b.className = 'tpl-btn border-2 border-gray-200 p-2 rounded-lg text-center hover:bg-slate-50 transition-all';
-                b.querySelector('span').className = 'text-[10px] font-bold text-slate-500';
+                b.className = "border-2 border-gray-200 p-2 rounded text-center text-xs font-bold text-gray-500 tpl-btn";
             });
-            const a = document.getElementById('tpl-'+t);
-            a.className = 'tpl-btn active border-2 border-blue-600 bg-blue-50 p-2 rounded-lg text-center transition-all';
-            a.querySelector('span').className = 'text-[10px] font-bold text-blue-700';
+            document.getElementById('btn-tpl-'+t).className = "border-2 border-blue-600 bg-blue-50 p-2 rounded text-center text-xs font-bold text-blue-700 tpl-btn";
             this.save();
         },
+        setColor(k, v) { this.data.config[k === 'accent' ? 'accent' : 'bg'] = v; this.save(); },
+        setFont(v) { this.data.config.font = v; this.save(); },
 
-        // Render A4
+        // --- RENDER CV ---
         render() {
             const d = this.data;
             const c = d.config;
-            const t = document.getElementById('cv-paper');
-            const sk = d.skills.split(',').filter(s=>s.trim());
+            const skills = d.skills.split(',').filter(s=>s.trim());
+            
+            let html = '';
+            
+            // Variabili CSS Inline per garantire la stampa
+            const styleVars = `
+                --sidebar-bg: ${c.bg};
+                --accent: ${c.accent};
+                font-family: ${c.font};
+            `;
 
-            t.style.setProperty('--col-prime', c.color);
-            t.style.setProperty('--col-side-bg', c.sideBg);
-            t.style.setProperty('--col-side-text', c.sideText);
-            t.style.fontFamily = c.font;
-
-            // FIX CLASS for SIDEBAR (Importante per il CSS ::before)
-            t.className = c.template === 'modern' ? 'layout-sidebar-left' : '';
-
-            let h = '';
-
-            // MODERN (Sidebar)
+            // TEMPLATE MODERN (Sidebar)
             if(c.template === 'modern') {
-                h = `
-                <div class="flex h-full min-h-[inherit] relative z-10">
-                    <div class="w-[35%] p-8 text-[var(--col-side-text)] flex flex-col shrink-0">
+                html = `
+                <div class="cv-paper cv-sidebar-layout" style="${styleVars}">
+                    <div class="cv-col-left p-8 flex flex-col">
                         <div class="text-center mb-8">
-                            ${d.photo ? `<div class="w-32 h-32 mx-auto mb-4 rounded-full bg-cover bg-center border-4 border-white/20 shadow-lg" style="background-image:url('${d.photo}')"></div>` : ''}
-                            <h1 class="text-2xl font-bold leading-tight mb-2 break-words">${d.personal.name}</h1>
-                            <p class="opacity-80 text-sm uppercase tracking-widest">${d.personal.title}</p>
+                            ${d.photo ? `<img src="${d.photo}" style="width:120px; height:120px; border-radius:50%; object-fit:cover; border:4px solid rgba(255,255,255,0.2); margin:0 auto 15px;">` : ''}
+                            <h1 style="font-size:24px; font-weight:bold; line-height:1.2;">${d.name}</h1>
+                            <p style="opacity:0.8; font-size:14px; margin-top:5px; text-transform:uppercase;">${d.title}</p>
                         </div>
-                        <div class="space-y-3 text-sm mb-10 opacity-90">
-                            <div class="flex items-center gap-3"><i class="fa-solid fa-envelope w-4"></i> <span class="break-all">${d.personal.email}</span></div>
-                            <div class="flex items-center gap-3"><i class="fa-solid fa-phone w-4"></i> ${d.personal.phone}</div>
-                            <div class="flex items-center gap-3"><i class="fa-solid fa-location-dot w-4"></i> ${d.personal.location}</div>
+                        <div style="font-size:13px; line-height:2; margin-bottom:30px;">
+                            <div>${d.email}</div>
+                            <div>${d.phone}</div>
+                            <div>${d.location}</div>
                         </div>
-                        <div class="mt-auto">
-                            <h3 class="text-xs font-bold uppercase tracking-widest border-b border-white/30 pb-2 mb-3 opacity-70">Skills</h3>
-                            <div class="flex flex-wrap gap-1">
-                                ${sk.map(s => `<span class="bg-white/10 px-2 py-1 rounded text-[10px] backdrop-blur-sm">${s.trim()}</span>`).join('')}
+                        <div style="margin-top:auto">
+                            <h3 style="font-size:12px; font-weight:bold; text-transform:uppercase; border-bottom:1px solid rgba(255,255,255,0.2); padding-bottom:5px; margin-bottom:10px;">Competenze</h3>
+                            <div style="display:flex; flex-wrap:wrap; gap:5px;">
+                                ${skills.map(s => `<span style="background:rgba(255,255,255,0.1); padding:2px 6px; border-radius:4px; font-size:11px;">${s.trim()}</span>`).join('')}
                             </div>
                         </div>
                     </div>
-                    <div class="w-[65%] p-10 bg-white text-slate-800">
-                        <div class="cv-block mb-8">
-                            <h3 class="text-lg font-bold uppercase tracking-widest border-b-2 pb-2 mb-4 text-[var(--col-prime)]" style="border-color: color-mix(in srgb, var(--col-prime), white 80%)">Profilo</h3>
-                            <p class="text-slate-600 text-justify text-sm leading-relaxed">${d.personal.summary}</p>
-                        </div>
-                        <div class="cv-block mb-8">
-                            <h3 class="text-lg font-bold uppercase tracking-widest border-b-2 pb-2 mb-6 text-[var(--col-prime)]" style="border-color: color-mix(in srgb, var(--col-prime), white 80%)">Esperienza</h3>
-                            <div class="space-y-6">
-                                ${d.experience.map(e => `
-                                    <div class="cv-block relative pl-4 border-l-2 border-slate-100">
-                                        <div class="absolute -left-[5px] top-1.5 w-2 h-2 rounded-full bg-[var(--col-prime)]"></div>
-                                        <h4 class="font-bold text-lg text-slate-800">${e.role}</h4>
-                                        <div class="flex justify-between items-center mb-2">
-                                            <span class="text-sm font-bold text-[var(--col-prime)]">${e.company}</span>
-                                            <span class="text-xs text-slate-400 bg-slate-50 px-2 py-0.5 rounded">${e.start} - ${e.end}</span>
-                                        </div>
-                                        <p class="text-sm text-slate-600 whitespace-pre-line">${e.desc}</p>
+                    <div class="cv-col-right p-10">
+                        <section style="margin-bottom:30px;">
+                            <h3 style="color:${c.accent}; font-weight:bold; text-transform:uppercase; border-bottom:2px solid #eee; padding-bottom:5px; margin-bottom:10px;">Profilo</h3>
+                            <p style="font-size:14px; color:#333;">${d.summary}</p>
+                        </section>
+                        <section style="margin-bottom:30px;">
+                            <h3 style="color:${c.accent}; font-weight:bold; text-transform:uppercase; border-bottom:2px solid #eee; padding-bottom:5px; margin-bottom:10px;">Esperienza</h3>
+                            ${d.exp.map(e => `
+                                <div style="margin-bottom:15px;">
+                                    <div style="font-weight:bold; font-size:16px;">${e.role}</div>
+                                    <div style="display:flex; justify-content:space-between; font-size:13px; color:${c.accent}; margin-bottom:3px;">
+                                        <span>${e.company}</span><span>${e.start} - ${e.end}</span>
                                     </div>
-                                `).join('')}
-                            </div>
-                        </div>
-                        <div class="cv-block">
-                            <h3 class="text-lg font-bold uppercase tracking-widest border-b-2 pb-2 mb-6 text-[var(--col-prime)]" style="border-color: color-mix(in srgb, var(--col-prime), white 80%)">Istruzione</h3>
-                            ${d.education.map(e => `
-                                <div class="cv-block mb-4">
-                                    <div class="font-bold text-slate-800">${e.degree}</div>
-                                    <div class="text-sm text-slate-500">${e.school}, ${e.year}</div>
+                                    <p style="font-size:13px; color:#555;">${e.desc}</p>
                                 </div>
                             `).join('')}
-                        </div>
+                        </section>
+                        <section>
+                            <h3 style="color:${c.accent}; font-weight:bold; text-transform:uppercase; border-bottom:2px solid #eee; padding-bottom:5px; margin-bottom:10px;">Istruzione</h3>
+                            ${d.edu.map(e => `
+                                <div style="margin-bottom:10px;">
+                                    <div style="font-weight:bold; font-size:14px;">${e.degree}</div>
+                                    <div style="font-size:13px; color:#666;">${e.school}, ${e.year}</div>
+                                </div>
+                            `).join('')}
+                        </section>
                     </div>
                 </div>`;
-            } 
-            // CLASSIC
-            else if(c.template === 'classic') {
+            }
+            // TEMPLATE CLASSIC
+            else {
                 html = `
-                <div class="p-12 text-slate-800">
-                    <div class="cv-block text-center border-b-2 border-slate-800 pb-8 mb-10">
-                        <h1 class="text-4xl font-bold uppercase tracking-tight mb-2">${d.personal.name}</h1>
-                        <p class="text-xl font-medium text-[var(--col-prime)] mb-4">${d.personal.title}</p>
-                        <div class="flex justify-center gap-4 text-sm text-slate-500">
-                            <span>${d.personal.email}</span><span>•</span><span>${d.personal.phone}</span><span>•</span><span>${d.personal.location}</span>
+                <div class="cv-paper p-12" style="${styleVars}">
+                    <div style="text-align:center; border-bottom:2px solid #333; padding-bottom:20px; margin-bottom:30px;">
+                        <h1 style="font-size:32px; font-weight:bold; text-transform:uppercase;">${d.name}</h1>
+                        <p style="color:${c.accent}; font-size:18px; margin-top:5px;">${d.title}</p>
+                        <div style="font-size:14px; color:#666; margin-top:10px;">
+                            ${d.email} | ${d.phone} | ${d.location}
                         </div>
                     </div>
-                    <div class="cv-block mb-10">
-                        <h3 class="text-sm font-bold uppercase tracking-widest border-b border-slate-200 pb-2 mb-4 text-slate-400">Profilo</h3>
-                        <p class="text-slate-600 text-justify leading-relaxed">${d.personal.summary}</p>
-                    </div>
-                    <div class="cv-block mb-10">
-                        <h3 class="text-sm font-bold uppercase tracking-widest border-b border-slate-200 pb-2 mb-6 text-slate-400">Esperienza</h3>
-                        ${d.experience.map(e => `
-                            <div class="cv-block grid grid-cols-[1fr_3fr] gap-6 mb-6">
-                                <div class="text-right text-sm font-bold text-[var(--col-prime)] pt-1">${e.start} - ${e.end}</div>
+                    <section style="margin-bottom:25px;">
+                        <h3 style="font-size:14px; font-weight:bold; text-transform:uppercase; color:#999; letter-spacing:1px; margin-bottom:10px;">Profilo</h3>
+                        <p style="font-size:14px;">${d.summary}</p>
+                    </section>
+                    <section style="margin-bottom:25px;">
+                        <h3 style="font-size:14px; font-weight:bold; text-transform:uppercase; color:#999; letter-spacing:1px; margin-bottom:10px;">Esperienza</h3>
+                        ${d.exp.map(e => `
+                            <div style="display:flex; margin-bottom:15px;">
+                                <div style="width:120px; font-weight:bold; font-size:12px; color:${c.accent};">${e.start} - ${e.end}</div>
                                 <div>
-                                    <h4 class="font-bold text-lg text-slate-800">${e.role}</h4>
-                                    <div class="text-sm text-slate-500 italic mb-2">${e.company}</div>
-                                    <p class="text-sm text-slate-600">${e.desc}</p>
+                                    <div style="font-weight:bold; font-size:15px;">${e.role}</div>
+                                    <div style="font-size:13px; font-style:italic; color:#666;">${e.company}</div>
+                                    <p style="font-size:13px; margin-top:3px;">${e.desc}</p>
                                 </div>
                             </div>
                         `).join('')}
-                    </div>
-                    <div class="grid grid-cols-2 gap-10">
-                        <div class="cv-block">
-                            <h3 class="text-sm font-bold uppercase tracking-widest border-b border-slate-200 pb-2 mb-4 text-slate-400">Istruzione</h3>
-                            ${d.education.map(e => `<div class="mb-3"><div class="font-bold">${e.degree}</div><div class="text-sm text-slate-500">${e.school}, ${e.year}</div></div>`).join('')}
-                        </div>
-                        <div class="cv-block">
-                            <h3 class="text-sm font-bold uppercase tracking-widest border-b border-slate-200 pb-2 mb-4 text-slate-400">Skills</h3>
-                            <div class="flex flex-wrap gap-2">${sk.map(s => `<span class="bg-slate-100 text-slate-600 px-2 py-1 rounded text-xs border border-slate-200">${s.trim()}</span>`).join('')}</div>
-                        </div>
-                    </div>
-                </div>`;
-            }
-            // MINIMAL
-            else {
-                html = `
-                <div class="p-12 grid grid-cols-[2fr_1fr] gap-12 text-slate-800">
-                    <div>
-                        <div class="cv-block mb-16">
-                            <h1 class="text-5xl font-light mb-2 leading-none">${d.personal.name}</h1>
-                            <p class="text-lg uppercase tracking-widest font-bold text-[var(--col-prime)] mb-10">${d.personal.title}</p>
-                            <div class="pl-6 border-l-4 mb-10" style="border-color: var(--col-prime)">
-                                <p class="text-lg italic text-slate-600 font-serif opacity-90">${d.personal.summary}</p>
-                            </div>
-                        </div>
-                        <div class="cv-block">
-                            <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-slate-400 mb-6 flex items-center gap-4">Esperienza <span class="h-px bg-slate-200 flex-1"></span></h3>
-                            <div class="space-y-8">
-                                ${d.experience.map(e => `
-                                    <div class="cv-block">
-                                        <h4 class="text-xl font-bold text-slate-800">${e.role}</h4>
-                                        <div class="text-sm font-bold text-[var(--col-prime)] mb-2 mt-1">${e.company}</div>
-                                        <p class="text-sm text-slate-600 leading-relaxed">${e.desc}</p>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="text-right pt-2">
-                        <div class="cv-block mb-10 space-y-2 text-sm">
-                            <h3 class="text-[10px] font-bold uppercase text-slate-400 mb-3 border-b pb-1">Contatti</h3>
-                            <div>${d.personal.email}</div><div>${d.personal.phone}</div><div>${d.personal.location}</div>
-                        </div>
-                        <div class="cv-block mb-10">
-                            <h3 class="text-[10px] font-bold uppercase text-slate-400 mb-4 border-b pb-2">Istruzione</h3>
-                            ${d.education.map(e => `<div class="mb-4"><div class="font-bold">${e.degree}</div><div class="text-xs text-slate-500">${e.school}</div></div>`).join('')}
-                        </div>
-                        <div class="cv-block">
-                            <h3 class="text-[10px] font-bold uppercase text-slate-400 mb-4 border-b pb-2">Skills</h3>
-                            <div class="flex flex-wrap justify-end gap-2">${sk.map(s => `<span class="border px-2 py-1 text-xs text-slate-500">${s.trim()}</span>`).join('')}</div>
-                        </div>
+                    </section>
+                    <div style="display:flex; gap:20px;">
+                        <section style="flex:1;">
+                            <h3 style="font-size:14px; font-weight:bold; text-transform:uppercase; color:#999; letter-spacing:1px; margin-bottom:10px;">Istruzione</h3>
+                            ${d.edu.map(e => `<div style="margin-bottom:8px;"><div style="font-weight:bold; font-size:14px;">${e.degree}</div><div style="font-size:12px;">${e.school}, ${e.year}</div></div>`).join('')}
+                        </section>
+                        <section style="flex:1;">
+                            <h3 style="font-size:14px; font-weight:bold; text-transform:uppercase; color:#999; letter-spacing:1px; margin-bottom:10px;">Skills</h3>
+                            <div style="font-size:13px;">${d.skills}</div>
+                        </section>
                     </div>
                 </div>`;
             }
 
-            t.innerHTML = html;
+            // Inietta in anteprima E nel contenitore di stampa
+            document.getElementById('cv-container').innerHTML = html;
+            document.getElementById('cv-print-container').innerHTML = html;
         },
 
-        // --- UTILS ---
-        scale() {
-            const w = document.getElementById('preview-container');
-            const p = document.getElementById('cv-paper');
-            if(!w || !p) return;
-            const s = Math.min((w.clientWidth - 40) / 794, 1);
-            p.style.transform = `scale(${s})`;
-            p.style.marginBottom = `-${1123 - (1123 * s)}px`;
-            document.getElementById('zoom-txt').innerText = `${Math.round(s*100)}%`;
+        // --- AZIONI ---
+        print() {
+            window.print();
         },
-
-        download() { window.print(); },
-
-        resetData() {
-            if(confirm('Cancellare tutto e ricominciare?')) {
-                localStorage.removeItem('nl_cv_v5');
+        reset() {
+            if(confirm('Cancellare tutto?')) {
+                localStorage.removeItem('nikita_cv_final');
                 location.reload();
             }
         },
-
+        
+        // --- UI ---
         setTab(t) {
-            document.getElementById('panel-content').style.display = t === 'content' ? 'block' : 'none';
-            document.getElementById('panel-design').style.display = t === 'design' ? 'block' : 'none';
+            document.getElementById('view-content').classList.add('hidden');
+            document.getElementById('view-design').classList.add('hidden');
+            document.getElementById('view-'+(t==='content'?'content':'design')).classList.remove('hidden');
             
-            const bc = document.getElementById('tab-btn-content');
-            const bd = document.getElementById('tab-btn-design');
+            // Stili bottoni
+            const b1 = document.getElementById('tab-content');
+            const b2 = document.getElementById('tab-design');
             if(t==='content') {
-                bc.className = "flex-1 py-2 text-xs font-bold uppercase rounded-md bg-white border border-gray-200 text-blue-600 shadow-sm transition-all";
-                bd.className = "flex-1 py-2 text-xs font-bold uppercase rounded-md text-slate-500 hover:bg-white hover:shadow-sm transition-all";
+                b1.className="flex-1 py-3 text-xs font-bold uppercase text-blue-600 border-b-2 border-blue-600 bg-white";
+                b2.className="flex-1 py-3 text-xs font-bold uppercase text-slate-500 hover:text-slate-700";
             } else {
-                bd.className = "flex-1 py-2 text-xs font-bold uppercase rounded-md bg-white border border-gray-200 text-blue-600 shadow-sm transition-all";
-                bc.className = "flex-1 py-2 text-xs font-bold uppercase rounded-md text-slate-500 hover:bg-white hover:shadow-sm transition-all";
+                b2.className="flex-1 py-3 text-xs font-bold uppercase text-blue-600 border-b-2 border-blue-600 bg-white";
+                b1.className="flex-1 py-3 text-xs font-bold uppercase text-slate-500 hover:text-slate-700";
             }
         },
 
-        mob(v) {
-            document.body.className = v === 'editor' ? 'view-editor' : 'view-preview';
-            document.getElementById('mb-edit').className = `mob-btn ${v==='editor'?'active':''}`;
-            document.getElementById('mb-prev').className = `mob-btn ${v==='preview'?'active':''}`;
-            if(v==='preview') setTimeout(() => this.scale(), 100);
+        mob(mode) {
+            // Mobile Nav Logic
+            const ep = document.getElementById('editor-panel');
+            const pp = document.getElementById('preview-panel');
+            const btns = document.querySelectorAll('.mob-btn');
+            btns.forEach(b => b.classList.remove('active'));
+
+            if(mode === 'preview') {
+                ep.classList.remove('active');
+                pp.classList.add('active');
+                document.getElementById('mob-view').classList.add('active');
+                setTimeout(() => this.zoom(), 100);
+            } else {
+                pp.classList.remove('active');
+                ep.classList.add('active');
+                if(mode === 'data') {
+                    this.setTab('content');
+                    document.getElementById('mob-data').classList.add('active');
+                } else {
+                    this.setTab('design');
+                    document.getElementById('mob-design').classList.add('active');
+                }
+            }
+        },
+
+        zoom() {
+            const wrap = document.getElementById('preview-panel');
+            const els = document.querySelectorAll('.cv-paper'); // Seleziona il foglio in anteprima
+            if(!wrap || els.length === 0) return;
+            // Prendi solo quello dentro il container di anteprima, non quello di stampa
+            const el = document.querySelector('#cv-container .cv-paper');
+            if(!el) return;
+
+            const availW = wrap.clientWidth - 40;
+            const scale = Math.min(availW / 794, 1); // 794px = 210mm
+            el.style.transform = `scale(${scale})`;
+            el.style.marginBottom = `-${1123 - (1123*scale)}px`; // Compensazione altezza
         }
     };
 
-    document.addEventListener('DOMContentLoaded', () => app.init());
-    window.addEventListener('resize', () => app.scale());
+    // Avvio
+    document.addEventListener('DOMContentLoaded', () => cvApp.init());
 </script>
 
 </body>
