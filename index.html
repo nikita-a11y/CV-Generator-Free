@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CV Creator Diamond - Crea il tuo Curriculum Perfetto</title>
+    <title>Crea il Tuo CV GRATIS - Nikita Lorusso</title>
     <meta name="description" content="Generatore di CV professionale gratuito. Crea, personalizza e scarica il tuo CV in PDF in pochi minuti.">
     
     <!-- Tailwind CSS CDN -->
@@ -40,12 +40,11 @@
     </script>
 
     <style>
-        /* --- STILI GLOBALI --- */
         body, html {
             margin: 0;
             padding: 0;
             height: 100%;
-            background-color: #020617; /* Sfondo applicazione scuro */
+            background-color: #020617; 
             color: #e2e8f0;
             font-family: 'Inter', sans-serif;
             overflow: hidden;
@@ -58,13 +57,11 @@
             box-sizing: border-box;
         }
 
-        /* Scrollbar raffinata */
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #64748b; }
 
-        /* --- FOGLIO A4 (Target) --- */
         #cv-render-target {
             width: 210mm; /* A4 width default */
             min-height: 297mm; /* A4 height default */
@@ -77,13 +74,10 @@
             color: #1e293b;
         }
         
-        /* FIX BARRA LATERALE: Specificità aumentata per vincere su background-color: white */
         #cv-render-target.cv-sidebar-left-layout {
-            /* Crea una "finta colonna" usando un gradiente che copre l'intero sfondo */
             background: linear-gradient(to right, var(--color-side-bg) 35%, white 35%);
         }
 
-        /* Effetto pagina piegata */
         #cv-render-target::after {
             content: "";
             position: absolute;
@@ -99,11 +93,9 @@
             filter: blur(10px);
         }
 
-        /* --- STILI DI STAMPA CRITICI --- */
         @media print {
             body * { visibility: hidden; }
             
-            /* Reset contenitori */
             body, html, .app-container, #preview-container {
                 background: white !important;
                 height: auto !important;
@@ -114,12 +106,10 @@
                 padding: 0 !important;
             }
 
-            /* Rendi visibile il CV */
             #cv-render-target, #cv-render-target * {
                 visibility: visible;
             }
 
-            /* Posizionamento fisso per la stampa */
             #cv-render-target {
                 position: absolute;
                 left: 0;
@@ -132,15 +122,12 @@
                 z-index: 9999;
                 min-height: 100vh; /* Forza altezza per il gradiente */
                 
-                /* Forza stampa colori e sfondi (Chrome/Safari/Edge) */
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
             
-            /* Rimuovi ombra pagina in stampa */
             #cv-render-target::after { display: none; }
 
-            /* Gestione interruzioni pagina */
             .cv-section, .cv-item {
                 page-break-inside: avoid;
             }
@@ -153,10 +140,8 @@
 
 <div id="cv-app-root" class="app-container">
     
-    <!-- EDITOR (SINISTRA) -->
     <div class="w-full md:w-[460px] bg-surface border-r border-slate-700 flex-shrink-0 flex flex-col z-20 print-hidden shadow-2xl relative">
         
-        <!-- HEADER -->
         <div class="p-5 border-b border-slate-700 bg-dark/80 backdrop-blur-md sticky top-0 z-30">
             <div class="flex justify-between items-center mb-4">
                 <div class="text-white text-xl font-extrabold flex items-center gap-3 tracking-tight">
@@ -170,7 +155,6 @@
                 </div>
             </div>
             
-            <!-- Azioni Rapide -->
             <div class="grid grid-cols-3 gap-2">
                 <button onclick="cvApp.resetData()" class="px-3 py-2 bg-slate-800 text-slate-300 rounded-lg text-xs font-bold hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/50 transition-all border border-slate-700 flex flex-col items-center gap-1 group">
                     <i class="fa-solid fa-trash-can text-sm mb-0.5 group-hover:scale-110 transition-transform"></i> Reset
@@ -185,7 +169,6 @@
             </div>
         </div>
 
-        <!-- TABS -->
         <div class="flex px-5 pt-4 gap-2">
             <button id="tab-content" onclick="cvApp.switchTab('content', this)" class="flex-1 py-3 text-sm font-bold text-white bg-blue-600 rounded-xl shadow-lg transition-all transform hover:scale-[1.02] flex items-center justify-center gap-2">
                 <i class="fa-solid fa-pen-to-square"></i> Contenuto
@@ -195,7 +178,6 @@
             </button>
         </div>
 
-        <!-- SCROLLABLE CONTENT -->
         <div class="flex-1 overflow-y-auto custom-scrollbar p-6">
             
             <!-- PANEL: CONTENT -->
@@ -266,10 +248,8 @@
                 </div>
             </div>
 
-            <!-- PANEL: DESIGN -->
             <div id="panel-design" style="display: none;" class="space-y-8 pb-10">
                 
-                <!-- LAYOUT -->
                 <div>
                     <label class="text-xs font-bold text-slate-400 uppercase mb-3 block">Scegli il tuo stile</label>
                     <div class="grid grid-cols-3 gap-3">
@@ -291,7 +271,6 @@
                     </div>
                 </div>
 
-                <!-- CARTA -->
                 <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700">
                     <label class="text-xs font-bold text-slate-400 uppercase mb-3 block">Formato Foglio</label>
                     <div class="flex gap-2 bg-slate-900 p-1.5 rounded-lg border border-slate-700">
@@ -300,7 +279,6 @@
                     </div>
                 </div>
                 
-                <!-- COLORI -->
                 <div>
                     <label class="text-xs font-bold text-slate-400 uppercase mb-3 block">Colori Personalizzati</label>
                     <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 space-y-5">
@@ -327,7 +305,6 @@
                     </div>
                 </div>
 
-                <!-- TIPOGRAFIA -->
                 <div>
                     <label class="text-xs font-bold text-slate-400 uppercase mb-3 block">Carattere</label>
                     <select data-model="config.font" onchange="cvApp.setConfig('font', this.value)" class="w-full bg-slate-900 border border-slate-700 text-white rounded-xl p-3 text-sm focus:border-blue-500 focus:outline-none">
@@ -338,7 +315,6 @@
                     </select>
                 </div>
 
-                <!-- SCALA -->
                 <div>
                     <label class="text-xs font-bold text-slate-400 uppercase mb-3 block flex justify-between">Dimensione Testo <span id="scale-val" class="text-blue-400 font-mono">100%</span></label>
                     <div class="px-2">
@@ -350,7 +326,6 @@
 
         </div>
 
-        <!-- FOOTER -->
         <div class="p-6 bg-dark/95 backdrop-blur border-t border-slate-700 print-hidden">
             <button onclick="window.print()" class="w-full px-4 py-4 bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 text-white rounded-xl font-bold text-lg hover:from-blue-500 hover:to-indigo-500 transition-all shadow-glow flex items-center justify-center gap-3 transform hover:-translate-y-1 active:translate-y-0 active:shadow-none border border-white/10 group">
                 <span class="bg-white/20 p-1 rounded-full group-hover:rotate-12 transition-transform"><i class="fa-solid fa-file-pdf"></i></span> Scarica il tuo CV
@@ -358,24 +333,19 @@
         </div>
     </div>
 
-    <!-- PREVIEW (DESTRA) -->
     <div id="preview-container" class="flex-1 bg-slate-900 relative overflow-hidden flex justify-center items-start pt-12 px-4 print-hidden bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:20px_20px]">
         
-        <!-- Zoom Badge -->
         <div class="absolute top-6 right-6 bg-slate-800/90 text-white text-xs font-bold px-4 py-2 rounded-full backdrop-blur-md border border-slate-600 shadow-xl flex items-center gap-2 z-10 hover:bg-slate-700 transition-colors cursor-default">
             <i class="fa-solid fa-magnifying-glass text-blue-400"></i> <span id="zoom-level">100%</span>
         </div>
 
-        <!-- CV CONTAINER (A4) -->
         <div id="cv-render-target" class="bg-white text-slate-900">
-            <!-- Il contenuto del CV viene iniettato qui da JS -->
         </div>
 
     </div>
 
 </div>
 
-<!-- LOGICA JS -->
 <script>
     const cvApp = {
         data: {
@@ -395,20 +365,17 @@
             this.updatePaperUI();
             this.render();
             
-            // Auto-Zoom (Responsive)
             const observer = new ResizeObserver(() => this.autoScale());
             const container = document.getElementById('preview-container');
             if(container) observer.observe(container);
             setTimeout(() => this.autoScale(), 200);
         },
 
-        // --- GESTIONE DATI (Export/Import) ---
         loadData: function() {
             const saved = localStorage.getItem('cv_diamond_v2');
             if (saved) {
                 try {
                     const loaded = JSON.parse(saved);
-                    // Merge profondo per sicurezza
                     this.data = {...this.data, ...loaded, config: {...this.data.config, ...loaded.config}};
                 } catch(e) {}
             }
@@ -460,7 +427,6 @@
                 const [p, k] = input.getAttribute('data-model').split('.');
                 input.value = k ? (this.data[p][k] || '') : (this.data[p] || '');
                 
-                // Remove old listeners to avoid duplicates on re-bind
                 input.oninput = (e) => {
                     if (k) this.data[p][k] = e.target.value;
                     else this.data[p] = e.target.value;
@@ -486,7 +452,7 @@
             this.updatePaperUI();
             this.saveData();
             this.render();
-            this.autoScale(); // Re-calc zoom
+            this.autoScale(); 
         },
 
         updatePaperUI: function() {
@@ -503,7 +469,6 @@
             }
         },
 
-        // --- LISTE ---
         addItem: function(type) {
             const item = type === 'experience' 
                 ? { id: Date.now(), role: 'Nuovo Ruolo', company: 'Azienda', start: '', end: '', desc: '' }
@@ -546,7 +511,6 @@
             `).join('');
         },
 
-        // --- FOTO ---
         uploadPhoto: function(el) {
             const file = el.files[0];
             if(file) {
@@ -561,13 +525,11 @@
             div.innerHTML = this.data.photo ? `<img src="${this.data.photo}" class="w-full h-full object-cover">` : `<i class="fa-solid fa-user text-slate-500 text-3xl"></i>`;
         },
 
-        // --- RENDER CV HTML ---
         render: function() {
             const d = this.data;
             const c = d.config;
             const target = document.getElementById('cv-render-target');
             
-            // Imposta Dimensione Foglio
             if (c.paper === 'Letter') {
                 target.style.width = '215.9mm';
                 target.style.minHeight = '279.4mm';
@@ -576,7 +538,6 @@
                 target.style.minHeight = '297mm';
             }
 
-            // Imposta variabili CSS
             target.style.setProperty('--color-primary', c.color);
             target.style.setProperty('--color-side-bg', c.sidebarBg);
             target.style.setProperty('--color-side-text', c.sideText || '#ffffff');
@@ -584,17 +545,14 @@
             target.style.fontFamily = c.font;
             target.style.fontSize = `${14 * c.scale}px`;
 
-            // Reset classi
             target.className = `cv-page ${c.font.includes('Poppins') ? 'font-poppins' : c.font.includes('Merriweather') ? 'font-serif' : c.font.includes('Roboto Mono') ? 'font-mono' : 'font-sans'}`;
             
-            // Aggiungi classe speciale per il layout Moderno per gestire il background gradient
             if(c.template === 'sidebarLeft') target.classList.add('cv-sidebar-left-layout');
             else target.classList.remove('cv-sidebar-left-layout');
 
             let html = '';
             const skillsArr = d.skills.split(',').filter(s => s.trim() !== '');
             
-            // 1. MODERN (Sidebar Left) - Il gradiente è gestito via CSS su #cv-render-target
             if (c.template === 'sidebarLeft') {
                 html = `
                 <div class="flex h-full min-h-[inherit]">
@@ -667,7 +625,6 @@
                     </div>
                 </div>`;
             } 
-            /* --- TEMPLATE CLASSIC --- */
             else if (c.template === 'classic') {
                 html = `
                 <div class="p-12 h-full bg-white text-[var(--color-text)]">
@@ -724,7 +681,6 @@
                     </div>
                 </div>`;
             }
-            /* --- TEMPLATE MINIMAL --- */
             else {
                 html = `
                 <div class="p-12 h-full bg-white text-[var(--color-text)] grid grid-cols-[3fr_1fr] gap-16">
@@ -803,7 +759,6 @@
             
             page.style.transform = `scale(${scale})`;
             
-            // Adjust height container to remove empty space below scaled element
             const pageHeight = this.data.config.paper === 'Letter' ? 1056 : 1123;
             page.style.marginBottom = `-${pageHeight - (pageHeight * scale)}px`; 
             
