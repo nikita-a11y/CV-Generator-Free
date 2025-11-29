@@ -3,95 +3,119 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CV Creator by Nikita Lorusso</title>
+    <title>CV Creator - Nikita Lorusso Web Design</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
     <!-- Font Awesome & Fonts -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Poppins:wght@300;400;600;700&family=Merriweather:wght@300;400;700&family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Playfair+Display:wght@400;700&family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
 
     <style>
-        /* --- RESET GLOBALE --- */
-        #cv-widget-root { font-family: 'Inter', sans-serif; color: #1e293b; line-height: 1.5; background: #f1f5f9; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        #cv-widget-root * { box-sizing: border-box; }
+        /* --- RESET & VARIABLES --- */
+        :root {
+            --primary: #2563eb;
+            --secondary: #1e293b;
+            --accent: #f59e0b; /* Un tocco di colore per le CTA */
+        }
+        
+        #cv-widget-root { font-family: 'Inter', sans-serif; color: #334155; line-height: 1.5; background: #f8fafc; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        #cv-widget-root * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-        /* --- LAYOUT RESPONSIVE --- */
+        /* --- LAYOUT PRINCIPALE --- */
         .main-area { display: flex; flex: 1; overflow: hidden; position: relative; }
         
-        /* Pannello Editor (Sinistra) */
-        .editor-panel { width: 400px; background: white; border-right: 1px solid #e2e8f0; display: flex; flex-direction: column; z-index: 20; box-shadow: 5px 0 15px rgba(0,0,0,0.05); }
-        .editor-content { flex: 1; overflow-y: auto; padding: 20px; }
+        /* Pannello Editor */
+        .editor-panel { width: 420px; background: white; border-right: 1px solid #e2e8f0; display: flex; flex-direction: column; z-index: 30; box-shadow: 10px 0 25px -5px rgba(0,0,0,0.05); }
+        .editor-content { flex: 1; overflow-y: auto; padding: 20px; scrollbar-width: thin; }
         
-        /* Pannello Anteprima (Destra) */
-        .preview-panel { flex: 1; background: #94a3b8; display: flex; justify-content: center; padding: 40px; overflow-y: auto; position: relative; }
-        
-        /* --- FOGLIO A4 (Il cuore) --- */
-        .cv-paper {
+        /* Pannello Anteprima */
+        .preview-panel { flex: 1; background: #cbd5e1; display: flex; justify-content: center; align-items: flex-start; padding: 40px 20px; overflow-y: auto; position: relative; }
+        .preview-panel {
+            background-image: linear-gradient(45deg, #94a3b8 25%, transparent 25%), linear-gradient(-45deg, #94a3b8 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #94a3b8 75%), linear-gradient(-45deg, transparent 75%, #94a3b8 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+            background-color: #e2e8f0;
+        }
+
+        /* --- FOGLIO A4 (Target) --- */
+        #cv-paper {
             width: 210mm;
-            min-height: 297mm; /* Altezza A4 */
+            min-height: 297mm;
             background: white;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            box-shadow: 0 20px 60px -12px rgba(0,0,0,0.4);
             position: relative;
             transform-origin: top center;
-            /* Importante per non tagliare contenuti */
-            height: auto; 
-            overflow: hidden;
+            margin-bottom: 50px;
+            color: #1e293b;
+            overflow: hidden; /* Fondamentale per i background */
         }
 
-        /* Gestione Barra Laterale "Infinita" */
-        .cv-sidebar-layout {
-            display: flex;
-            min-height: 297mm; /* Assicura che il flex container copra tutta la pagina */
+        /* --- STILI TEMPLATE --- */
+        /* Template Elegant Sidebar */
+        .tpl-elegant .sidebar-col {
+            background-color: var(--sidebar-bg);
+            color: var(--sidebar-text);
+            min-height: 297mm; /* Altezza minima A4 */
             height: 100%;
         }
-        .cv-col-left {
-            width: 35%;
-            background-color: var(--sidebar-bg, #1e293b);
-            color: var(--sidebar-text, white);
-            min-height: 100%; /* Forza l'altezza */
-            flex-shrink: 0;
-        }
-        .cv-col-right {
-            width: 65%;
-            background-color: white;
-            flex-grow: 1;
+        
+        /* Template Minimal Header */
+        .tpl-minimal .header-section {
+            border-bottom: 2px solid var(--accent-color);
         }
 
-        /* --- MOBILE MODE --- */
+        /* --- CTA NIKITA LORUSSO --- */
+        .nikita-banner {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            text-align: center;
+            border: 1px solid #334155;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        .nikita-banner:hover { transform: translateY(-2px); }
+        .nikita-badge {
+            background: #f59e0b; color: #fff; text-transform: uppercase; 
+            font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 4px;
+            margin-left: 8px; vertical-align: middle;
+        }
+
+        /* --- MOBILE --- */
         .mobile-nav { display: none; }
 
         @media (max-width: 900px) {
-            #cv-widget-root { height: auto; min-height: 100vh; }
-            .main-area { flex-direction: column; height: auto; padding-bottom: 70px; } /* Spazio per nav */
+            #cv-widget-root { height: 100dvh; } /* Dynamic viewport height */
+            .main-area { flex-direction: column; }
             
-            .editor-panel { width: 100%; height: auto; border-right: none; display: none; }
-            .editor-panel.active { display: flex; }
+            .editor-panel { width: 100%; position: absolute; top:0; bottom: 60px; left:0; right:0; border-right: none; }
+            .preview-panel { position: absolute; top:0; bottom: 60px; left:0; right:0; z-index: 40; background: #e2e8f0; padding-top: 60px; }
             
-            .preview-panel { width: 100%; height: auto; display: none; padding: 10px; background: #e2e8f0; }
-            .preview-panel.active { display: flex; }
-            
-            .cv-paper { transform: scale(1) !important; width: 100% !important; min-height: auto; box-shadow: none; }
-
+            /* Navigazione in basso */
             .mobile-nav { 
                 display: flex; position: fixed; bottom: 0; left: 0; width: 100%; 
                 background: white; border-top: 1px solid #e2e8f0; z-index: 100; 
-                justify-content: space-around; padding: 10px; box-shadow: 0 -5px 10px rgba(0,0,0,0.05);
+                height: 60px; padding-bottom: env(safe-area-inset-bottom);
             }
-            .mob-btn { flex: 1; text-align: center; font-size: 10px; color: #64748b; font-weight: 600; background: none; border: none; }
-            .mob-btn i { display: block; font-size: 18px; margin-bottom: 3px; }
-            .mob-btn.active { color: #2563eb; }
+            .mob-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 10px; color: #64748b; background: none; border: none; }
+            .mob-btn i { font-size: 20px; margin-bottom: 2px; }
+            .mob-btn.active { color: var(--primary); }
+
+            /* Gestione visibilità */
+            body.show-editor .preview-panel { display: none !important; }
+            body.show-preview .editor-panel { display: none !important; }
         }
 
-        /* --- STAMPA PDF (FIX DEFINITIVO) --- */
+        /* --- STAMPA PDF PERFETTA --- */
         @media print {
-            /* Nascondi tutto tranne il foglio */
-            body > *:not(#cv-print-container) { display: none !important; }
+            body > *:not(#print-area) { display: none !important; }
             #cv-widget-root { display: none !important; }
             
-            /* Contenitore di stampa speciale */
-            #cv-print-container {
+            #print-area {
                 display: block !important;
                 position: absolute;
                 top: 0;
@@ -99,455 +123,439 @@
                 width: 100%;
                 margin: 0;
                 padding: 0;
-                z-index: 9999;
             }
 
-            /* Configurazione Foglio in stampa */
-            .cv-paper {
+            #cv-paper {
                 box-shadow: none !important;
                 margin: 0 !important;
                 width: 100% !important;
-                min-height: 100vh !important; /* Forza altezza pagina intera */
+                /* Forza altezza per background colonna */
+                min-height: 100vh !important; 
                 height: auto !important;
-                page-break-after: auto;
-                transform: none !important; /* Rimuovi zoom JS */
+                transform: none !important;
                 
-                /* Forza Background Colori */
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
-                background-color: white !important;
             }
-
-            /* Forza altezza colonne */
-            .cv-sidebar-layout, .cv-col-left {
-                height: 100% !important;
-                min-height: 100vh !important; 
+            
+            /* Assicura che i background stampino */
+            .sidebar-col, .header-bg {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
             }
 
             @page { margin: 0; size: auto; }
         }
-        
-        /* Utility Classes per JS */
-        .hidden { display: none !important; }
     </style>
 </head>
-<body>
+<body class="show-editor">
 
-<!-- APP ROOT -->
+<!-- ROOT -->
 <div id="cv-widget-root">
     
     <!-- HEADER -->
-    <header class="bg-white border-b border-gray-200 px-4 py-3 flex justify-between items-center z-30 shrink-0">
-        <div class="flex items-center gap-2">
-            <div class="bg-blue-600 text-white w-8 h-8 rounded-lg flex items-center justify-center font-bold text-lg">CV</div>
+    <header class="bg-white border-b border-gray-200 px-4 py-3 flex justify-between items-center z-40 relative">
+        <div class="flex items-center gap-3">
+            <div class="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center text-white shadow-lg">
+                <i class="fa-solid fa-file-contract"></i>
+            </div>
             <div>
-                <h1 class="text-sm font-bold text-slate-800 leading-tight">Creator</h1>
-                <a href="https://www.nikitalorusso.it" target="_blank" class="text-[10px] text-blue-600 hover:underline uppercase tracking-wider font-bold">by Nikita Lorusso</a>
+                <h1 class="text-sm font-bold text-slate-900 leading-none">CV Creator</h1>
+                <a href="https://www.nikitalorusso.it" target="_blank" class="text-[10px] text-blue-600 font-bold hover:underline uppercase tracking-wide">
+                    by Nikita Lorusso
+                </a>
             </div>
         </div>
-        <div class="flex gap-2">
-            <button onclick="cvApp.reset()" class="bg-slate-100 text-slate-600 px-3 py-2 rounded-lg text-xs font-bold hover:bg-slate-200 transition-colors">
-                <i class="fa-solid fa-trash-can sm:mr-1"></i> <span class="hidden sm:inline">Reset</span>
-            </button>
-            <button onclick="cvApp.print()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-blue-700 transition-colors shadow-lg flex items-center gap-2">
-                <i class="fa-solid fa-download"></i> Scarica PDF
-            </button>
-        </div>
+        <button onclick="cvApp.download()" class="bg-slate-900 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-slate-800 transition-all shadow-md flex items-center gap-2">
+            <i class="fa-solid fa-download"></i> <span class="hidden sm:inline">Scarica PDF</span>
+        </button>
     </header>
 
     <div class="main-area">
         
         <!-- EDITOR -->
-        <div id="editor-panel" class="editor-panel active">
-            <!-- TABS EDITOR -->
-            <div class="flex border-b border-gray-200 bg-slate-50">
-                <button onclick="cvApp.setTab('content')" id="tab-content" class="flex-1 py-3 text-xs font-bold uppercase text-blue-600 border-b-2 border-blue-600 bg-white">Dati</button>
-                <button onclick="cvApp.setTab('design')" id="tab-design" class="flex-1 py-3 text-xs font-bold uppercase text-slate-500 hover:text-slate-700">Design</button>
+        <div id="editor-panel" class="editor-panel">
+            
+            <!-- Promo Banner -->
+            <div class="p-4 border-b border-gray-100 bg-slate-50">
+                <a href="https://www.nikitalorusso.it/servizi" target="_blank" class="nikita-banner block">
+                    <div class="text-xs font-bold text-blue-300 uppercase tracking-widest mb-1">Professional Web Design</div>
+                    <div class="font-bold text-sm">Vuoi un Sito Web su Misura?</div>
+                    <div class="text-[10px] text-gray-400 mt-1">Clicca qui per una consulenza gratuita <i class="fa-solid fa-arrow-right ml-1"></i></div>
+                </a>
             </div>
 
-            <div class="editor-content custom-scrollbar">
+            <!-- Tabs Editor -->
+            <div class="flex border-b border-gray-200">
+                <button onclick="cvApp.tab('content')" id="t-content" class="flex-1 py-3 text-xs font-bold uppercase text-blue-600 border-b-2 border-blue-600 bg-white">Contenuto</button>
+                <button onclick="cvApp.tab('design')" id="t-design" class="flex-1 py-3 text-xs font-bold uppercase text-slate-400 hover:text-slate-600">Stile</button>
+            </div>
+
+            <div class="editor-content">
                 
-                <!-- PANNELLO DATI -->
-                <div id="view-content" class="space-y-6">
+                <!-- CONTENT TAB -->
+                <div id="v-content" class="space-y-6">
                     <!-- Foto -->
-                    <div class="bg-blue-50 p-3 rounded-lg border border-blue-100 flex items-center gap-3">
-                        <div id="ui-photo" class="w-12 h-12 rounded-full bg-white border-2 border-blue-200 overflow-hidden flex items-center justify-center text-blue-200">
-                            <i class="fa-solid fa-user"></i>
+                    <div class="flex items-center gap-4 p-3 border border-gray-200 rounded-xl bg-white shadow-sm">
+                        <div id="ui-photo" class="w-14 h-14 rounded-full bg-slate-100 border flex items-center justify-center text-slate-300 overflow-hidden">
+                            <i class="fa-solid fa-user text-xl"></i>
                         </div>
-                        <div class="flex-1 flex gap-2">
-                            <button onclick="document.getElementById('upl').click()" class="bg-blue-600 text-white text-xs font-bold px-3 py-1.5 rounded flex-1">Carica Foto</button>
-                            <button onclick="cvApp.delPhoto()" class="bg-white border border-red-200 text-red-500 text-xs font-bold px-3 py-1.5 rounded flex-1">Rimuovi</button>
-                            <input type="file" id="upl" hidden accept="image/*" onchange="cvApp.addPhoto(this)">
+                        <div class="flex-1">
+                            <label class="text-[10px] font-bold uppercase text-slate-400 mb-1 block">Foto Profilo</label>
+                            <div class="flex gap-2">
+                                <button onclick="document.getElementById('upl').click()" class="bg-blue-50 text-blue-600 px-3 py-1.5 rounded text-xs font-bold hover:bg-blue-100">Carica</button>
+                                <button onclick="cvApp.delPhoto()" class="text-red-400 px-2 py-1.5 text-xs hover:text-red-600">Rimuovi</button>
+                                <input type="file" id="upl" hidden accept="image/*" onchange="cvApp.setPhoto(this)">
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Input -->
+                    <!-- Dati -->
                     <div class="space-y-3">
-                        <input type="text" data-key="name" placeholder="Nome Completo" class="w-full p-2.5 border rounded text-sm font-bold">
-                        <input type="text" data-key="title" placeholder="Titolo (es. Web Designer)" class="w-full p-2.5 border rounded text-sm">
+                        <input type="text" data-k="name" placeholder="Nome e Cognome" class="w-full p-3 border border-gray-300 rounded-lg text-sm font-bold focus:border-blue-500 outline-none">
+                        <input type="text" data-k="title" placeholder="Titolo (es. Architetto)" class="w-full p-3 border border-gray-300 rounded-lg text-sm focus:border-blue-500 outline-none">
                         <div class="grid grid-cols-2 gap-2">
-                            <input type="text" data-key="email" placeholder="Email" class="p-2.5 border rounded text-sm">
-                            <input type="text" data-key="phone" placeholder="Telefono" class="p-2.5 border rounded text-sm">
+                            <input type="text" data-k="email" placeholder="Email" class="p-3 border border-gray-300 rounded-lg text-sm focus:border-blue-500 outline-none">
+                            <input type="text" data-k="phone" placeholder="Telefono" class="p-3 border border-gray-300 rounded-lg text-sm focus:border-blue-500 outline-none">
                         </div>
-                        <input type="text" data-key="location" placeholder="Città" class="w-full p-2.5 border rounded text-sm">
-                        <textarea data-key="summary" rows="3" placeholder="Profilo professionale..." class="w-full p-2.5 border rounded text-sm resize-none"></textarea>
+                        <input type="text" data-k="location" placeholder="Indirizzo" class="w-full p-3 border border-gray-300 rounded-lg text-sm focus:border-blue-500 outline-none">
+                        <textarea data-k="summary" rows="4" placeholder="Descrivi il tuo profilo professionale..." class="w-full p-3 border border-gray-300 rounded-lg text-sm focus:border-blue-500 outline-none resize-none"></textarea>
                     </div>
 
                     <!-- Liste -->
                     <div class="space-y-4">
-                        <div class="flex justify-between items-center border-b pb-1">
-                            <span class="text-xs font-bold uppercase text-slate-400">Esperienza</span>
-                            <button onclick="cvApp.addList('exp')" class="text-blue-600 text-xs font-bold">+ Aggiungi</button>
+                        <div class="flex justify-between items-end border-b pb-1">
+                            <label class="text-xs font-bold text-slate-400 uppercase">Esperienza</label>
+                            <button onclick="cvApp.add('exp')" class="text-blue-600 text-xs font-bold hover:underline">+ Aggiungi</button>
                         </div>
-                        <div id="ui-exp-list" class="space-y-2"></div>
+                        <div id="list-exp" class="space-y-3"></div>
 
-                        <div class="flex justify-between items-center border-b pb-1">
-                            <span class="text-xs font-bold uppercase text-slate-400">Istruzione</span>
-                            <button onclick="cvApp.addList('edu')" class="text-blue-600 text-xs font-bold">+ Aggiungi</button>
+                        <div class="flex justify-between items-end border-b pb-1 pt-2">
+                            <label class="text-xs font-bold text-slate-400 uppercase">Istruzione</label>
+                            <button onclick="cvApp.add('edu')" class="text-blue-600 text-xs font-bold hover:underline">+ Aggiungi</button>
                         </div>
-                        <div id="ui-edu-list" class="space-y-2"></div>
+                        <div id="list-edu" class="space-y-3"></div>
                     </div>
 
                     <!-- Skills -->
                     <div>
-                        <span class="text-xs font-bold uppercase text-slate-400 block mb-1">Competenze (separate da virgola)</span>
-                        <textarea data-key="skills" rows="2" class="w-full p-2.5 border rounded text-sm resize-none"></textarea>
+                        <label class="text-xs font-bold text-slate-400 uppercase mb-1 block">Competenze</label>
+                        <textarea data-k="skills" rows="2" placeholder="HTML, CSS, Management, Inglese..." class="w-full p-3 border border-gray-300 rounded-lg text-sm focus:border-blue-500 outline-none resize-none"></textarea>
                     </div>
                 </div>
 
-                <!-- PANNELLO DESIGN -->
-                <div id="view-design" class="hidden space-y-6">
+                <!-- DESIGN TAB -->
+                <div id="v-design" class="hidden space-y-6">
                     <div>
-                        <span class="text-xs font-bold uppercase text-slate-400 block mb-2">Template</span>
-                        <div class="grid grid-cols-2 gap-2">
-                            <button onclick="cvApp.setTpl('modern')" class="border-2 border-blue-600 bg-blue-50 p-2 rounded text-center text-xs font-bold text-blue-700 tpl-btn" id="btn-tpl-modern">Moderno</button>
-                            <button onclick="cvApp.setTpl('classic')" class="border-2 border-gray-200 p-2 rounded text-center text-xs font-bold text-gray-500 tpl-btn" id="btn-tpl-classic">Classico</button>
+                        <label class="text-xs font-bold text-slate-400 uppercase mb-2 block">Template</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <button onclick="cvApp.setTpl('elegant')" id="btn-elegant" class="border-2 border-blue-600 bg-blue-50 p-3 rounded-lg text-center text-xs font-bold text-blue-700 tpl-btn">
+                                <div class="h-6 w-full bg-white border border-gray-300 mb-1 flex"><div class="w-1/3 bg-slate-400 h-full"></div></div>
+                                Elegant
+                            </button>
+                            <button onclick="cvApp.setTpl('minimal')" id="btn-minimal" class="border-2 border-gray-200 p-3 rounded-lg text-center text-xs font-bold text-gray-500 hover:bg-gray-50 tpl-btn">
+                                <div class="h-6 w-full bg-white border border-gray-300 mb-1 flex flex-col"><div class="w-full h-1 border-b border-gray-300"></div></div>
+                                Minimal
+                            </button>
                         </div>
                     </div>
-                    
-                    <div>
-                        <span class="text-xs font-bold uppercase text-slate-400 block mb-2">Colori</span>
-                        <div class="flex items-center justify-between p-2 border rounded mb-2">
-                            <span class="text-xs font-bold">Colore Principale</span>
-                            <input type="color" oninput="cvApp.setColor('accent', this.value)" value="#2563eb" class="w-8 h-8 rounded cursor-pointer">
+
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center p-2 border rounded-lg bg-white">
+                            <span class="text-xs font-bold text-slate-600">Colore Accento</span>
+                            <input type="color" oninput="cvApp.cfg('accent', this.value)" value="#2563eb" class="w-8 h-8 rounded cursor-pointer">
                         </div>
-                        <div class="flex items-center justify-between p-2 border rounded">
-                            <span class="text-xs font-bold">Sfondo Colonna</span>
-                            <input type="color" oninput="cvApp.setColor('bg', this.value)" value="#1e293b" class="w-8 h-8 rounded cursor-pointer">
+                        <div class="flex justify-between items-center p-2 border rounded-lg bg-white">
+                            <span class="text-xs font-bold text-slate-600">Sfondo Sidebar</span>
+                            <input type="color" oninput="cvApp.cfg('bg', this.value)" value="#1e293b" class="w-8 h-8 rounded cursor-pointer">
+                        </div>
+                        <div class="flex justify-between items-center p-2 border rounded-lg bg-white">
+                            <span class="text-xs font-bold text-slate-600">Testo Sidebar</span>
+                            <input type="color" oninput="cvApp.cfg('txt', this.value)" value="#ffffff" class="w-8 h-8 rounded cursor-pointer">
                         </div>
                     </div>
 
                     <div>
-                        <span class="text-xs font-bold uppercase text-slate-400 block mb-2">Font</span>
-                        <select onchange="cvApp.setFont(this.value)" class="w-full p-2 border rounded text-sm bg-white">
-                            <option value="Inter, sans-serif">Inter</option>
-                            <option value="Poppins, sans-serif">Poppins</option>
-                            <option value="Merriweather, serif">Merriweather</option>
+                        <label class="text-xs font-bold text-slate-400 uppercase mb-2 block">Carattere</label>
+                        <select onchange="cvApp.cfg('font', this.value)" class="w-full p-2 border border-gray-300 rounded text-sm outline-none">
+                            <option value="Inter, sans-serif">Inter (Moderno)</option>
+                            <option value="Playfair Display, serif">Playfair (Elegante)</option>
+                            <option value="Roboto Mono, monospace">Roboto (Tecnico)</option>
                         </select>
                     </div>
                 </div>
 
-                <!-- Call to Action Nikita -->
-                <div class="mt-8 pt-4 border-t border-gray-200 text-center">
-                    <p class="text-xs text-slate-500 mb-2">Hai bisogno di un sito web professionale?</p>
-                    <a href="https://www.nikitalorusso.it" target="_blank" class="block w-full bg-slate-900 text-white text-xs font-bold py-3 rounded-lg hover:bg-slate-800 transition-colors">
-                        Contatta Nikita Lorusso <i class="fa-solid fa-arrow-right ml-1"></i>
-                    </a>
+                <div class="mt-8 pt-4 border-t border-gray-100 text-center">
+                    <button onclick="cvApp.reset()" class="text-red-400 text-xs hover:underline">Cancella tutto e ricomincia</button>
                 </div>
             </div>
         </div>
 
         <!-- ANTEPRIMA -->
-        <div id="preview-panel" class="preview-panel">
-            <!-- Il CV viene iniettato qui -->
-            <div id="cv-container"></div>
+        <div class="preview-panel">
+            <div id="cv-paper">
+                <!-- CV Rendering -->
+            </div>
         </div>
 
     </div>
 
     <!-- MOBILE NAV -->
     <div class="mobile-nav">
-        <button onclick="cvApp.mob('data')" class="mob-btn active" id="mob-data"><i class="fa-solid fa-pen"></i>Dati</button>
-        <button onclick="cvApp.mob('design')" class="mob-btn" id="mob-design"><i class="fa-solid fa-palette"></i>Design</button>
-        <button onclick="cvApp.mob('preview')" class="mob-btn" id="mob-view"><i class="fa-solid fa-eye"></i>Anteprima</button>
+        <button onclick="cvApp.mob('edit')" class="mob-btn active" id="m-edit"><i class="fa-solid fa-pen-nib"></i>Editor</button>
+        <button onclick="cvApp.mob('prev')" class="mob-btn" id="m-prev"><i class="fa-solid fa-eye"></i>Anteprima</button>
     </div>
 
 </div>
 
-<!-- CONTENITORE STAMPA NASCOSTO -->
-<div id="cv-print-container"></div>
+<!-- AREA DI STAMPA NASCOSTA -->
+<div id="print-area"></div>
 
 <script>
-    const cvApp = {
-        data: {
-            name: 'Mario Rossi', title: 'Digital Marketer', email: 'mario@email.com', phone: '333 1234567', location: 'Roma', summary: 'Esperto di strategie digitali.',
-            skills: 'SEO, SEM, Social Media, Analytics',
-            exp: [{id:1, role:'Manager', company:'Azienda', start:'2020', end:'Oggi', desc:'Gestione team.'}],
-            edu: [{id:1, degree:'Laurea', school:'Università', year:'2019'}],
-            photo: null,
-            config: { template: 'modern', accent: '#2563eb', bg: '#1e293b', font: 'Inter, sans-serif' }
-        },
+const cvApp = {
+    data: {
+        name: 'Giulia Bianchi', title: 'Marketing Manager', email: 'giulia@email.com', phone: '333 0000000', location: 'Milano', summary: 'Professionista con 5 anni di esperienza nella gestione di progetti digitali.',
+        skills: 'Social Media, SEO, Copywriting, Leadership',
+        exp: [{id:1, role:'Senior Specialist', company:'Digital Agency', start:'2020', end:'Oggi', desc:'Gestione campagne adv e coordinamento team.'}],
+        edu: [{id:1, degree:'Laurea in Marketing', school:'Università Bocconi', year:'2019'}],
+        photo: null,
+        config: { tpl: 'elegant', accent: '#2563eb', bg: '#1e293b', txt: '#ffffff', font: 'Inter, sans-serif' }
+    },
 
-        init() {
-            const s = localStorage.getItem('nikita_cv_final');
-            if(s) try { this.data = {...this.data, ...JSON.parse(s)}; } catch(e){}
-            this.bind(); this.renderLists(); this.updatePhoto(); this.render();
-            // Auto Zoom per Desktop
-            window.addEventListener('resize', () => this.zoom());
-            setTimeout(() => this.zoom(), 500);
-        },
+    init() {
+        const s = localStorage.getItem('nikita_cv_pro');
+        if(s) try { this.data = {...this.data, ...JSON.parse(s)}; } catch(e){}
+        this.bind(); this.renderL(); this.updPh(); this.render();
+        // Zoom auto
+        window.addEventListener('resize', () => this.zoom());
+        setTimeout(() => this.zoom(), 500);
+    },
 
-        save() {
-            localStorage.setItem('nikita_cv_final', JSON.stringify(this.data));
-            this.render();
-        },
+    save() {
+        localStorage.setItem('nikita_cv_pro', JSON.stringify(this.data));
+        this.render();
+    },
 
-        bind() {
-            document.querySelectorAll('[data-key]').forEach(el => {
-                el.value = this.data[el.dataset.key] || '';
-                el.oninput = (e) => { this.data[el.dataset.key] = e.target.value; this.save(); };
-            });
-        },
+    bind() {
+        document.querySelectorAll('[data-k]').forEach(el => {
+            el.value = this.data[el.dataset.k] || '';
+            el.oninput = (e) => { this.data[el.dataset.k] = e.target.value; this.save(); };
+        });
+    },
 
-        // --- FOTO ---
-        addPhoto(el) {
-            if(el.files[0]) {
-                const r = new FileReader();
-                r.onload = (e) => { this.data.photo = e.target.result; this.updatePhoto(); this.save(); };
-                r.readAsDataURL(el.files[0]);
-            }
-        },
-        delPhoto() { this.data.photo = null; this.updatePhoto(); this.save(); },
-        updatePhoto() {
-            const el = document.getElementById('ui-photo');
-            el.innerHTML = this.data.photo ? `<img src="${this.data.photo}" class="w-full h-full object-cover">` : `<i class="fa-solid fa-user"></i>`;
-        },
+    // Foto
+    setPhoto(el) {
+        if(el.files[0]) {
+            const r = new FileReader();
+            r.onload = (e) => { this.data.photo = e.target.result; this.updPh(); this.save(); };
+            r.readAsDataURL(el.files[0]);
+        }
+    },
+    delPhoto() { this.data.photo = null; this.updPh(); this.save(); },
+    updPh() {
+        document.getElementById('ui-photo').innerHTML = this.data.photo ? 
+            `<img src="${this.data.photo}" class="w-full h-full object-cover">` : `<i class="fa-solid fa-user text-2xl"></i>`;
+    },
 
-        // --- LISTE ---
-        addList(t) {
-            this.data[t].unshift({id: Date.now(), role:'Ruolo', degree:'Titolo', company:'Ente', school:'Scuola', start:'', end:'', year:'', desc:''});
-            this.renderLists(); this.save();
-        },
-        delList(t, id) {
-            if(confirm('Eliminare?')) { this.data[t] = this.data[t].filter(i=>i.id!==id); this.renderLists(); this.save(); }
-        },
-        updList(t, id, k, v) { this.data[t].find(i=>i.id===id)[k] = v; this.save(); },
-        renderLists() {
-            ['exp', 'edu'].forEach(t => {
-                const isExp = t==='exp';
-                document.getElementById(`ui-${t}-list`).innerHTML = this.data[t].map(i => `
-                    <div class="bg-white border p-2 rounded mb-2 relative">
-                        <button onclick="cvApp.delList('${t}', ${i.id})" class="absolute top-2 right-2 text-red-400 text-xs"><i class="fa-solid fa-trash"></i></button>
-                        <input class="w-full font-bold text-sm outline-none mb-1" value="${i[isExp?'role':'degree']}" oninput="cvApp.updList('${t}', ${i.id}, '${isExp?'role':'degree'}', this.value)" placeholder="Titolo">
-                        <input class="w-full text-xs text-gray-500 outline-none mb-1" value="${i[isExp?'company':'school']}" oninput="cvApp.updList('${t}', ${i.id}, '${isExp?'company':'school'}', this.value)" placeholder="Ente">
-                        <div class="flex gap-2 mb-1">
-                            ${isExp ? 
-                                `<input class="w-1/2 bg-slate-50 text-xs p-1 rounded" value="${i.start}" oninput="cvApp.updList('${t}', ${i.id}, 'start', this.value)" placeholder="Da">
-                                 <input class="w-1/2 bg-slate-50 text-xs p-1 rounded" value="${i.end}" oninput="cvApp.updList('${t}', ${i.id}, 'end', this.value)" placeholder="A">` :
-                                `<input class="w-full bg-slate-50 text-xs p-1 rounded" value="${i.year}" oninput="cvApp.updList('${t}', ${i.id}, 'year', this.value)" placeholder="Anno">`
-                            }
-                        </div>
-                        ${isExp ? `<textarea class="w-full text-xs bg-slate-50 p-1 rounded resize-none" rows="2" oninput="cvApp.updList('${t}', ${i.id}, 'desc', this.value)" placeholder="Descrizione">${i.desc}</textarea>` : ''}
+    // Liste
+    add(t) {
+        this.data[t].unshift({id:Date.now(), role:'Ruolo', degree:'Titolo', company:'Ente', school:'Scuola', start:'', end:'', year:'', desc:''});
+        this.renderL(); this.save();
+    },
+    del(t, id) {
+        if(confirm('Eliminare?')) { this.data[t] = this.data[t].filter(i=>i.id!==id); this.renderL(); this.save(); }
+    },
+    updL(t, id, k, v) { this.data[t].find(i=>i.id===id)[k] = v; this.save(); },
+    renderL() {
+        ['exp', 'edu'].forEach(t => {
+            const isE = t==='exp';
+            document.getElementById(`list-${t}`).innerHTML = this.data[t].map(i => `
+                <div class="bg-white border p-3 rounded-lg mb-2 relative group hover:shadow-sm transition-all">
+                    <button onclick="cvApp.del('${t}', ${i.id})" class="absolute top-2 right-2 text-slate-300 hover:text-red-500"><i class="fa-solid fa-trash"></i></button>
+                    <input class="w-full font-bold text-sm mb-1 outline-none" value="${i[isE?'role':'degree']}" oninput="cvApp.updL('${t}', ${i.id}, '${isE?'role':'degree'}', this.value)" placeholder="Titolo">
+                    <input class="w-full text-xs text-slate-500 mb-2 outline-none" value="${i[isE?'company':'school']}" oninput="cvApp.updL('${t}', ${i.id}, '${isE?'company':'school'}', this.value)" placeholder="Ente">
+                    <div class="flex gap-2 mb-2">
+                        ${isE ? 
+                            `<input class="w-1/2 bg-slate-50 p-1 rounded text-xs outline-none" value="${i.start}" oninput="cvApp.updL('${t}', ${i.id}, 'start', this.value)" placeholder="Da">
+                             <input class="w-1/2 bg-slate-50 p-1 rounded text-xs outline-none" value="${i.end}" oninput="cvApp.updL('${t}', ${i.id}, 'end', this.value)" placeholder="A">` :
+                            `<input class="w-full bg-slate-50 p-1 rounded text-xs outline-none" value="${i.year}" oninput="cvApp.updL('${t}', ${i.id}, 'year', this.value)" placeholder="Anno">`
+                        }
                     </div>
-                `).join('');
-            });
-        },
+                    ${isE ? `<textarea class="w-full bg-slate-50 p-2 rounded text-xs outline-none resize-none" rows="2" oninput="cvApp.updL('${t}', ${i.id}, 'desc', this.value)" placeholder="Descrizione">${i.desc}</textarea>` : ''}
+                </div>
+            `).join('');
+        });
+    },
 
-        // --- DESIGN ---
-        setTpl(t) {
-            this.data.config.template = t;
-            document.querySelectorAll('.tpl-btn').forEach(b => {
-                b.className = "border-2 border-gray-200 p-2 rounded text-center text-xs font-bold text-gray-500 tpl-btn";
-            });
-            document.getElementById('btn-tpl-'+t).className = "border-2 border-blue-600 bg-blue-50 p-2 rounded text-center text-xs font-bold text-blue-700 tpl-btn";
-            this.save();
-        },
-        setColor(k, v) { this.data.config[k === 'accent' ? 'accent' : 'bg'] = v; this.save(); },
-        setFont(v) { this.data.config.font = v; this.save(); },
+    // Config
+    cfg(k, v) { this.data.config[k] = v; this.save(); },
+    setTpl(t) {
+        this.data.config.tpl = t;
+        document.querySelectorAll('.tpl-btn').forEach(b => {
+            b.className = "border-2 border-gray-200 p-3 rounded-lg text-center text-xs font-bold text-gray-500 tpl-btn hover:bg-slate-50";
+        });
+        document.getElementById(`btn-${t}`).className = "border-2 border-blue-600 bg-blue-50 p-3 rounded-lg text-center text-xs font-bold text-blue-700 tpl-btn";
+        this.save();
+    },
 
-        // --- RENDER CV ---
-        render() {
-            const d = this.data;
-            const c = d.config;
-            const skills = d.skills.split(',').filter(s=>s.trim());
-            
-            let html = '';
-            
-            // Variabili CSS Inline per garantire la stampa
-            const styleVars = `
-                --sidebar-bg: ${c.bg};
-                --accent: ${c.accent};
-                font-family: ${c.font};
-            `;
+    // Render
+    render() {
+        const d = this.data;
+        const c = d.config;
+        const t = document.getElementById('cv-paper');
+        const pa = document.getElementById('print-area');
+        
+        // CSS Vars
+        const styles = `
+            --accent: ${c.accent};
+            --sidebar-bg: ${c.bg};
+            --sidebar-text: ${c.txt};
+            font-family: ${c.font};
+        `;
+        t.style = styles;
+        
+        let h = '';
+        const skills = d.skills.split(',').filter(s=>s.trim());
 
-            // TEMPLATE MODERN (Sidebar)
-            if(c.template === 'modern') {
-                html = `
-                <div class="cv-paper cv-sidebar-layout" style="${styleVars}">
-                    <div class="cv-col-left p-8 flex flex-col">
-                        <div class="text-center mb-8">
-                            ${d.photo ? `<img src="${d.photo}" style="width:120px; height:120px; border-radius:50%; object-fit:cover; border:4px solid rgba(255,255,255,0.2); margin:0 auto 15px;">` : ''}
-                            <h1 style="font-size:24px; font-weight:bold; line-height:1.2;">${d.name}</h1>
-                            <p style="opacity:0.8; font-size:14px; margin-top:5px; text-transform:uppercase;">${d.title}</p>
-                        </div>
-                        <div style="font-size:13px; line-height:2; margin-bottom:30px;">
-                            <div>${d.email}</div>
-                            <div>${d.phone}</div>
-                            <div>${d.location}</div>
-                        </div>
-                        <div style="margin-top:auto">
-                            <h3 style="font-size:12px; font-weight:bold; text-transform:uppercase; border-bottom:1px solid rgba(255,255,255,0.2); padding-bottom:5px; margin-bottom:10px;">Competenze</h3>
-                            <div style="display:flex; flex-wrap:wrap; gap:5px;">
-                                ${skills.map(s => `<span style="background:rgba(255,255,255,0.1); padding:2px 6px; border-radius:4px; font-size:11px;">${s.trim()}</span>`).join('')}
-                            </div>
-                        </div>
+        // 1. ELEGANT SIDEBAR (Fix Colonna Infinita per Stampa)
+        if(c.tpl === 'elegant') {
+            h = `
+            <div class="cv-sidebar-layout tpl-elegant">
+                <div class="cv-col-left p-8 flex flex-col sidebar-col">
+                    <div class="text-center mb-8">
+                        ${d.photo ? `<img src="${d.photo}" style="width:120px; height:120px; border-radius:50%; object-fit:cover; margin:0 auto 15px; border:4px solid rgba(255,255,255,0.2);">` : ''}
+                        <h1 style="font-size:24px; font-weight:bold; line-height:1.2; margin-bottom:5px;">${d.name}</h1>
+                        <p style="opacity:0.8; font-size:14px; text-transform:uppercase; letter-spacing:1px;">${d.title}</p>
                     </div>
-                    <div class="cv-col-right p-10">
-                        <section style="margin-bottom:30px;">
-                            <h3 style="color:${c.accent}; font-weight:bold; text-transform:uppercase; border-bottom:2px solid #eee; padding-bottom:5px; margin-bottom:10px;">Profilo</h3>
-                            <p style="font-size:14px; color:#333;">${d.summary}</p>
-                        </section>
-                        <section style="margin-bottom:30px;">
-                            <h3 style="color:${c.accent}; font-weight:bold; text-transform:uppercase; border-bottom:2px solid #eee; padding-bottom:5px; margin-bottom:10px;">Esperienza</h3>
-                            ${d.exp.map(e => `
-                                <div style="margin-bottom:15px;">
-                                    <div style="font-weight:bold; font-size:16px;">${e.role}</div>
-                                    <div style="display:flex; justify-content:space-between; font-size:13px; color:${c.accent}; margin-bottom:3px;">
-                                        <span>${e.company}</span><span>${e.start} - ${e.end}</span>
-                                    </div>
-                                    <p style="font-size:13px; color:#555;">${e.desc}</p>
-                                </div>
-                            `).join('')}
-                        </section>
-                        <section>
-                            <h3 style="color:${c.accent}; font-weight:bold; text-transform:uppercase; border-bottom:2px solid #eee; padding-bottom:5px; margin-bottom:10px;">Istruzione</h3>
-                            ${d.edu.map(e => `
-                                <div style="margin-bottom:10px;">
-                                    <div style="font-weight:bold; font-size:14px;">${e.degree}</div>
-                                    <div style="font-size:13px; color:#666;">${e.school}, ${e.year}</div>
-                                </div>
-                            `).join('')}
-                        </section>
+                    <div style="font-size:13px; line-height:2; margin-bottom:30px; opacity:0.9;">
+                        <div><i class="fa-solid fa-envelope mr-2"></i> ${d.email}</div>
+                        <div><i class="fa-solid fa-phone mr-2"></i> ${d.phone}</div>
+                        <div><i class="fa-solid fa-location-dot mr-2"></i> ${d.location}</div>
                     </div>
-                </div>`;
-            }
-            // TEMPLATE CLASSIC
-            else {
-                html = `
-                <div class="cv-paper p-12" style="${styleVars}">
-                    <div style="text-align:center; border-bottom:2px solid #333; padding-bottom:20px; margin-bottom:30px;">
-                        <h1 style="font-size:32px; font-weight:bold; text-transform:uppercase;">${d.name}</h1>
-                        <p style="color:${c.accent}; font-size:18px; margin-top:5px;">${d.title}</p>
-                        <div style="font-size:14px; color:#666; margin-top:10px;">
-                            ${d.email} | ${d.phone} | ${d.location}
+                    <div style="margin-top:auto">
+                        <h3 style="font-size:12px; font-weight:bold; text-transform:uppercase; border-bottom:1px solid rgba(255,255,255,0.2); padding-bottom:5px; margin-bottom:10px; opacity:0.8;">Competenze</h3>
+                        <div style="display:flex; flex-wrap:wrap; gap:5px;">
+                            ${skills.map(s => `<span style="background:rgba(255,255,255,0.1); padding:3px 8px; border-radius:4px; font-size:11px;">${s.trim()}</span>`).join('')}
                         </div>
                     </div>
-                    <section style="margin-bottom:25px;">
-                        <h3 style="font-size:14px; font-weight:bold; text-transform:uppercase; color:#999; letter-spacing:1px; margin-bottom:10px;">Profilo</h3>
-                        <p style="font-size:14px;">${d.summary}</p>
+                </div>
+                <div class="cv-col-right p-10 text-slate-800">
+                    <section style="margin-bottom:30px;">
+                        <h3 style="font-size:18px; font-weight:bold; text-transform:uppercase; color:${c.accent}; border-bottom:2px solid #eee; padding-bottom:5px; margin-bottom:15px;">Profilo</h3>
+                        <p style="font-size:14px; text-align:justify; color:#334155;">${d.summary}</p>
                     </section>
-                    <section style="margin-bottom:25px;">
-                        <h3 style="font-size:14px; font-weight:bold; text-transform:uppercase; color:#999; letter-spacing:1px; margin-bottom:10px;">Esperienza</h3>
+                    <section style="margin-bottom:30px;">
+                        <h3 style="font-size:18px; font-weight:bold; text-transform:uppercase; color:${c.accent}; border-bottom:2px solid #eee; padding-bottom:5px; margin-bottom:15px;">Esperienza</h3>
                         ${d.exp.map(e => `
-                            <div style="display:flex; margin-bottom:15px;">
-                                <div style="width:120px; font-weight:bold; font-size:12px; color:${c.accent};">${e.start} - ${e.end}</div>
-                                <div>
-                                    <div style="font-weight:bold; font-size:15px;">${e.role}</div>
-                                    <div style="font-size:13px; font-style:italic; color:#666;">${e.company}</div>
-                                    <p style="font-size:13px; margin-top:3px;">${e.desc}</p>
+                            <div style="margin-bottom:20px; page-break-inside: avoid;">
+                                <div style="font-weight:bold; font-size:16px; color:#1e293b;">${e.role}</div>
+                                <div style="display:flex; justify-content:space-between; font-size:13px; color:${c.accent}; font-weight:600; margin-bottom:5px;">
+                                    <span>${e.company}</span><span>${e.start} - ${e.end}</span>
                                 </div>
+                                <p style="font-size:13px; color:#475569; line-height:1.5;">${e.desc}</p>
                             </div>
                         `).join('')}
                     </section>
-                    <div style="display:flex; gap:20px;">
-                        <section style="flex:1;">
-                            <h3 style="font-size:14px; font-weight:bold; text-transform:uppercase; color:#999; letter-spacing:1px; margin-bottom:10px;">Istruzione</h3>
-                            ${d.edu.map(e => `<div style="margin-bottom:8px;"><div style="font-weight:bold; font-size:14px;">${e.degree}</div><div style="font-size:12px;">${e.school}, ${e.year}</div></div>`).join('')}
-                        </section>
-                        <section style="flex:1;">
-                            <h3 style="font-size:14px; font-weight:bold; text-transform:uppercase; color:#999; letter-spacing:1px; margin-bottom:10px;">Skills</h3>
-                            <div style="font-size:13px;">${d.skills}</div>
-                        </section>
-                    </div>
-                </div>`;
-            }
-
-            // Inietta in anteprima E nel contenitore di stampa
-            document.getElementById('cv-container').innerHTML = html;
-            document.getElementById('cv-print-container').innerHTML = html;
-        },
-
-        // --- AZIONI ---
-        print() {
-            window.print();
-        },
-        reset() {
-            if(confirm('Cancellare tutto?')) {
-                localStorage.removeItem('nikita_cv_final');
-                location.reload();
-            }
-        },
-        
-        // --- UI ---
-        setTab(t) {
-            document.getElementById('view-content').classList.add('hidden');
-            document.getElementById('view-design').classList.add('hidden');
-            document.getElementById('view-'+(t==='content'?'content':'design')).classList.remove('hidden');
-            
-            // Stili bottoni
-            const b1 = document.getElementById('tab-content');
-            const b2 = document.getElementById('tab-design');
-            if(t==='content') {
-                b1.className="flex-1 py-3 text-xs font-bold uppercase text-blue-600 border-b-2 border-blue-600 bg-white";
-                b2.className="flex-1 py-3 text-xs font-bold uppercase text-slate-500 hover:text-slate-700";
-            } else {
-                b2.className="flex-1 py-3 text-xs font-bold uppercase text-blue-600 border-b-2 border-blue-600 bg-white";
-                b1.className="flex-1 py-3 text-xs font-bold uppercase text-slate-500 hover:text-slate-700";
-            }
-        },
-
-        mob(mode) {
-            // Mobile Nav Logic
-            const ep = document.getElementById('editor-panel');
-            const pp = document.getElementById('preview-panel');
-            const btns = document.querySelectorAll('.mob-btn');
-            btns.forEach(b => b.classList.remove('active'));
-
-            if(mode === 'preview') {
-                ep.classList.remove('active');
-                pp.classList.add('active');
-                document.getElementById('mob-view').classList.add('active');
-                setTimeout(() => this.zoom(), 100);
-            } else {
-                pp.classList.remove('active');
-                ep.classList.add('active');
-                if(mode === 'data') {
-                    this.setTab('content');
-                    document.getElementById('mob-data').classList.add('active');
-                } else {
-                    this.setTab('design');
-                    document.getElementById('mob-design').classList.add('active');
-                }
-            }
-        },
-
-        zoom() {
-            const wrap = document.getElementById('preview-panel');
-            const els = document.querySelectorAll('.cv-paper'); // Seleziona il foglio in anteprima
-            if(!wrap || els.length === 0) return;
-            // Prendi solo quello dentro il container di anteprima, non quello di stampa
-            const el = document.querySelector('#cv-container .cv-paper');
-            if(!el) return;
-
-            const availW = wrap.clientWidth - 40;
-            const scale = Math.min(availW / 794, 1); // 794px = 210mm
-            el.style.transform = `scale(${scale})`;
-            el.style.marginBottom = `-${1123 - (1123*scale)}px`; // Compensazione altezza
+                    <section style="page-break-inside: avoid;">
+                        <h3 style="font-size:18px; font-weight:bold; text-transform:uppercase; color:${c.accent}; border-bottom:2px solid #eee; padding-bottom:5px; margin-bottom:15px;">Istruzione</h3>
+                        ${d.edu.map(e => `
+                            <div style="margin-bottom:10px;">
+                                <div style="font-weight:bold; font-size:14px;">${e.degree}</div>
+                                <div style="font-size:13px; color:#64748b;">${e.school}, ${e.year}</div>
+                            </div>
+                        `).join('')}
+                    </section>
+                </div>
+            </div>`;
         }
-    };
+        // 2. MINIMAL (Top Header)
+        else {
+            h = `
+            <div class="p-12 tpl-minimal" style="color:#1e293b;">
+                <div class="text-center border-b-2 pb-8 mb-10 header-section" style="border-color:${c.accent};">
+                    <h1 style="font-size:36px; font-weight:bold; text-transform:uppercase; letter-spacing:1px; margin-bottom:5px;">${d.name}</h1>
+                    <p style="font-size:18px; color:${c.accent}; font-weight:500;">${d.title}</p>
+                    <div style="font-size:13px; color:#64748b; margin-top:10px;">
+                        ${d.email} &bull; ${d.phone} &bull; ${d.location}
+                    </div>
+                </div>
+                <section style="margin-bottom:30px;">
+                    <h3 style="font-size:14px; font-weight:bold; text-transform:uppercase; color:#94a3b8; letter-spacing:1px; border-bottom:1px solid #e2e8f0; padding-bottom:5px; margin-bottom:15px;">Profilo</h3>
+                    <p style="font-size:14px; text-align:justify;">${d.summary}</p>
+                </section>
+                <section style="margin-bottom:30px;">
+                    <h3 style="font-size:14px; font-weight:bold; text-transform:uppercase; color:#94a3b8; letter-spacing:1px; border-bottom:1px solid #e2e8f0; padding-bottom:5px; margin-bottom:15px;">Esperienza</h3>
+                    ${d.exp.map(e => `
+                        <div style="display:flex; margin-bottom:20px; page-break-inside: avoid;">
+                            <div style="width:120px; font-size:12px; font-weight:bold; color:${c.accent}; pt-1;">${e.start} - ${e.end}</div>
+                            <div style="flex:1;">
+                                <div style="font-weight:bold; font-size:16px;">${e.role}</div>
+                                <div style="font-size:13px; font-style:italic; color:#64748b; margin-bottom:5px;">${e.company}</div>
+                                <p style="font-size:13px;">${e.desc}</p>
+                            </div>
+                        </div>
+                    `).join('')}
+                </section>
+                <div style="display:flex; gap:30px;">
+                    <section style="flex:1;">
+                        <h3 style="font-size:14px; font-weight:bold; text-transform:uppercase; color:#94a3b8; letter-spacing:1px; border-bottom:1px solid #e2e8f0; padding-bottom:5px; margin-bottom:15px;">Istruzione</h3>
+                        ${d.edu.map(e => `<div style="margin-bottom:10px;"><div style="font-weight:bold; font-size:14px;">${e.degree}</div><div style="font-size:12px; color:#64748b;">${e.school}, ${e.year}</div></div>`).join('')}
+                    </section>
+                    <section style="flex:1;">
+                        <h3 style="font-size:14px; font-weight:bold; text-transform:uppercase; color:#94a3b8; letter-spacing:1px; border-bottom:1px solid #e2e8f0; padding-bottom:5px; margin-bottom:15px;">Skills</h3>
+                        <div style="font-size:13px; line-height:1.6;">${d.skills}</div>
+                    </section>
+                </div>
+            </div>`;
+        }
 
-    // Avvio
-    document.addEventListener('DOMContentLoaded', () => cvApp.init());
+        t.innerHTML = h;
+        pa.innerHTML = h; // Copia per la stampa
+        pa.style = styles; // Applica variabili anche all'area stampa
+    },
+
+    // --- UTILS ---
+    zoom() {
+        const p = document.getElementById('cv-paper');
+        const w = p.parentElement.clientWidth;
+        if(w < 800) {
+            const s = (w - 40) / 794; // 210mm in px
+            p.style.transform = `scale(${s})`;
+            p.style.marginBottom = `-${1123 - (1123*s)}px`;
+        } else {
+            p.style.transform = 'none';
+            p.style.marginBottom = '50px';
+        }
+    },
+
+    tab(t) {
+        document.getElementById('v-content').className = t==='content' ? '' : 'hidden';
+        document.getElementById('v-design').className = t==='design' ? '' : 'hidden';
+        
+        document.getElementById('t-content').className = t==='content' ? "flex-1 py-3 text-xs font-bold uppercase text-blue-600 border-b-2 border-blue-600 bg-white" : "flex-1 py-3 text-xs font-bold uppercase text-slate-400 hover:text-slate-600";
+        document.getElementById('t-design').className = t==='design' ? "flex-1 py-3 text-xs font-bold uppercase text-blue-600 border-b-2 border-blue-600 bg-white" : "flex-1 py-3 text-xs font-bold uppercase text-slate-400 hover:text-slate-600";
+    },
+
+    mob(mode) {
+        const body = document.querySelector('body');
+        const bEdit = document.getElementById('m-edit');
+        const bPrev = document.getElementById('m-prev');
+        
+        if(mode === 'edit') {
+            body.className = 'show-editor';
+            bEdit.classList.add('active'); bPrev.classList.remove('active');
+        } else {
+            body.className = 'show-preview';
+            bPrev.classList.add('active'); bEdit.classList.remove('active');
+            setTimeout(() => this.zoom(), 100);
+        }
+    },
+
+    download() { window.print(); },
+    reset() { if(confirm('Cancellare tutto?')) { localStorage.removeItem('nikita_cv_pro'); location.reload(); } }
+};
+
+document.addEventListener('DOMContentLoaded', () => cvApp.init());
 </script>
 
 </body>
