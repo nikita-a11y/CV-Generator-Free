@@ -5,20 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>CV Creator - Nikita Lorusso Design</title>
     
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Libreria PDF Stabile -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts: Inter (UI) e Playfair/Merriweather (CV) -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;700&family=Merriweather:wght@300;400;700&family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;700&family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
 
     <style>
-        /* --- DESIGN SYSTEM UMANO --- */
         :root {
-            --primary: #1e3a8a; /* Blu Notte Elegante */
-            --accent: #d97706; /* Ambra per CTA */
+            --primary: #1e3a8a;
+            --accent: #d97706;
             --bg-app: #f3f4f6;
             --surface: #ffffff;
             --text-main: #334155;
@@ -28,10 +23,8 @@
         body { font-family: 'Inter', sans-serif; background: var(--bg-app); color: var(--text-main); height: 100vh; overflow: hidden; margin: 0; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-        /* --- LAYOUT GENERALE --- */
         .app-container { display: flex; height: 100%; width: 100%; }
 
-        /* --- COLONNA SINISTRA (EDITOR + BRANDING) --- */
         .editor-sidebar {
             width: 420px;
             background: var(--surface);
@@ -48,25 +41,6 @@
             background: white;
         }
 
-        .brand-panel {
-            background: linear-gradient(135deg, #1e3a8a 0%, #172554 100%);
-            color: white;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-            text-align: center;
-            box-shadow: 0 10px 25px -5px rgba(30, 58, 138, 0.25);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        /* Effetto luce nel banner */
-        .brand-panel::before {
-            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
-            transform: rotate(45deg); pointer-events: none;
-        }
-
         .editor-scroll-area {
             flex: 1;
             overflow-y: auto;
@@ -75,7 +49,6 @@
             background: #f8fafc;
         }
 
-        /* --- COLONNA DESTRA (ANTEPRIMA) --- */
         .preview-area {
             flex: 1;
             background: #e2e8f0;
@@ -85,10 +58,6 @@
             padding: 40px;
             overflow: auto;
             position: relative;
-        }
-        
-        /* Pattern sfondo tecnico */
-        .preview-area {
             background-image: 
                 linear-gradient(45deg, #cbd5e1 25%, transparent 25%), 
                 linear-gradient(-45deg, #cbd5e1 25%, transparent 25%), 
@@ -98,7 +67,6 @@
             background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
         }
 
-        /* --- FOGLIO A4 (Il cuore del sistema) --- */
         #cv-paper {
             width: 210mm;
             min-height: 297mm;
@@ -107,11 +75,9 @@
             position: relative;
             transform-origin: top center;
             margin-bottom: 50px;
-            /* Forza il rendering corretto */
             flex-shrink: 0;
         }
 
-        /* --- STILI INPUT UMANI --- */
         .input-group label {
             font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 6px;
         }
@@ -124,7 +90,6 @@
         }
         .input-field::placeholder { color: #94a3b8; font-style: italic; }
 
-        /* --- MOBILE --- */
         .mobile-nav { display: none; }
 
         @media (max-width: 900px) {
@@ -134,10 +99,9 @@
             
             .preview-area { 
                 width: 100%; height: auto; padding: 20px 10px; min-height: 600px;
-                overflow: hidden; /* Gestito dallo zoom JS */
+                overflow: hidden;
             }
             
-            /* Su mobile, l'anteprima deve essere scalata via JS, non CSS media queries, per mantenere aspect ratio */
             #cv-paper { margin: 0 auto 30px auto; }
 
             .mobile-nav {
@@ -154,12 +118,10 @@
             .mob-btn.active { color: var(--primary); background: #f0f9ff; }
             .mob-btn i { font-size: 20px; margin-bottom: 4px; }
 
-            /* Tab switching */
             body.tab-editor .preview-area { display: none; }
             body.tab-preview .editor-sidebar { display: none; }
         }
 
-        /* --- LOADER --- */
         #loader {
             position: fixed; inset: 0; background: rgba(255,255,255,0.9); z-index: 9999;
             display: none; justify-content: center; align-items: center; flex-direction: column;
@@ -167,11 +129,15 @@
         }
         .spinner { width: 40px; height: 40px; border: 4px solid #e2e8f0; border-top-color: var(--primary); border-radius: 50%; animation: spin 1s infinite linear; }
         @keyframes spin { to {transform: rotate(360deg);} }
+        
+        .tpl-elegant .sidebar {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
     </style>
 </head>
 <body class="tab-editor">
 
-<!-- LOADER -->
 <div id="loader">
     <div class="spinner"></div>
     <p class="mt-4 font-bold text-slate-700">Creazione PDF in corso...</p>
@@ -180,10 +146,8 @@
 
 <div class="app-container">
     
-    <!-- EDITOR -->
     <div class="editor-sidebar">
         
-        <!-- HEADER -->
         <div class="editor-header flex justify-between items-center sticky top-0 z-20">
             <div class="flex items-center gap-2">
                 <div class="w-8 h-8 bg-blue-900 text-white rounded flex items-center justify-center font-bold font-serif">N</div>
@@ -193,59 +157,57 @@
                 </div>
             </div>
             <button onclick="app.download()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-blue-700 transition shadow-lg flex items-center gap-2">
-                <i class="fa-solid fa-download"></i> Scarica PDF
+                <i class="fa-solid fa-download"></i> PDF
             </button>
         </div>
 
-        <!-- SCROLL CONTENT -->
         <div class="editor-scroll-area">
             
-            <!-- BRANDING NIKITA LORUSSO -->
-            <div class="brand-panel">
-                <div class="w-16 h-16 bg-white rounded-full mx-auto mb-3 flex items-center justify-center text-blue-900 text-2xl border-4 border-blue-400/30">
-                    <i class="fa-solid fa-gem"></i>
-                </div>
-                <h2 class="text-lg font-bold mb-1">Nikita Lorusso</h2>
-                <p class="text-xs opacity-80 mb-4 font-light">Web Design & Digital Strategy per il tuo business.</p>
+            <div class="bg-white p-5 rounded-xl shadow-md border border-blue-50 mb-6">
+                <div class="text-[10px] font-bold text-blue-600 uppercase tracking-widest mb-2">Digital Design & Strategy</div>
+                <h3 class="text-lg font-bold text-slate-800 mb-1">Nikita Lorusso</h3>
+                <p class="text-xs text-slate-600 mb-4 leading-relaxed">
+                    Web Design, Social Media e Grafica per far crescere il tuo business. Trasformo la tua visione in realtà digitale.
+                </p>
                 
-                <div class="grid grid-cols-2 gap-3">
-                    <a href="https://www.nikitalorusso.it/servizi" target="_blank" class="bg-white text-blue-900 py-2.5 rounded-lg text-xs font-bold hover:bg-blue-50 transition">
-                        I Miei Servizi
+                <div class="grid grid-cols-1 gap-2">
+                    <a href="https://www.nikitalorusso.com" target="_blank" class="bg-slate-900 text-white text-xs font-bold py-2.5 rounded-lg text-center hover:bg-slate-800 transition-colors flex justify-center items-center gap-2">
+                        <i class="fa-solid fa-globe"></i> Sito Ufficiale
                     </a>
-                    <a href="https://www.instagram.com/nikita_lorusso/" target="_blank" class="bg-blue-800 text-white py-2.5 rounded-lg text-xs font-bold hover:bg-blue-700 transition border border-blue-700">
-                        <i class="fa-brands fa-instagram"></i> Instagram
+                    <div class="grid grid-cols-2 gap-2">
+                        <a href="https://linktr.ee/nikitalorusso" target="_blank" class="bg-green-600 text-white text-xs font-bold py-2.5 rounded-lg text-center hover:bg-green-700 transition-colors flex justify-center items-center gap-2">
+                            <i class="fa-solid fa-link"></i> Linktree
+                        </a>
+                        <a href="https://www.instagram.com/nikita_lorusso/" target="_blank" class="bg-pink-600 text-white text-xs font-bold py-2.5 rounded-lg text-center hover:bg-pink-700 transition-colors flex justify-center items-center gap-2">
+                            <i class="fa-brands fa-instagram"></i> Instagram
+                        </a>
+                    </div>
+                    <a href="https://linktr.ee/nikitalorusso" target="_blank" class="mt-1 bg-gradient-to-r from-amber-500 to-orange-600 text-white text-xs font-bold py-3 rounded-lg text-center shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5 flex justify-center items-center gap-2">
+                        <i class="fa-solid fa-pen-nib"></i> Richiedi un CV Personalizzato
                     </a>
-                </div>
-                
-                <div class="mt-4 pt-4 border-t border-blue-800/50 text-[10px] opacity-60">
-                    Hai bisogno di un sito web professionale? Contattami.
                 </div>
             </div>
 
-            <!-- TABS -->
             <div class="flex gap-2 mb-6 bg-white p-1 rounded-lg border border-slate-200">
                 <button onclick="app.panel('content')" id="btn-content" class="flex-1 py-2 text-xs font-bold uppercase rounded bg-blue-50 text-blue-700 border border-blue-100">Dati</button>
                 <button onclick="app.panel('design')" id="btn-design" class="flex-1 py-2 text-xs font-bold uppercase rounded text-slate-500 hover:bg-slate-50">Stile</button>
             </div>
 
-            <!-- PANEL: DATI -->
             <div id="p-content" class="space-y-6">
                 
-                <!-- FOTO -->
                 <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
                     <div id="ui-photo" class="w-14 h-14 rounded-full bg-slate-100 border flex items-center justify-center text-slate-300 overflow-hidden shrink-0">
                         <i class="fa-solid fa-camera"></i>
                     </div>
                     <div class="flex-1">
                         <div class="flex gap-2">
-                            <button onclick="document.getElementById('upl').click()" class="flex-1 bg-slate-800 text-white px-3 py-2 rounded-lg text-xs font-bold hover:bg-slate-700">Carica Foto</button>
+                            <button onclick="document.getElementById('upl').click()" class="flex-1 bg-slate-800 text-white px-3 py-2 rounded-lg text-xs font-bold hover:bg-slate-700">Carica</button>
                             <input type="file" id="upl" hidden accept="image/*" onchange="app.setPhoto(this)">
                             <button onclick="app.delPhoto()" class="text-red-500 px-3 py-2 rounded-lg text-xs font-bold hover:bg-red-50 border border-red-100">X</button>
                         </div>
                     </div>
                 </div>
 
-                <!-- INFO -->
                 <div class="space-y-4">
                     <div class="input-group">
                         <label>Chi Sei</label>
@@ -253,7 +215,7 @@
                     </div>
                     <div class="input-group">
                         <label>Titolo Professionale</label>
-                        <input type="text" data-k="title" placeholder="Es. Web Designer & Consulente" class="input-field">
+                        <input type="text" data-k="title" placeholder="Es. Web Designer & Strategist" class="input-field">
                     </div>
                     <div class="grid grid-cols-2 gap-3">
                         <div class="input-group">
@@ -271,11 +233,10 @@
                     </div>
                     <div class="input-group">
                         <label>Profilo (Bio)</label>
-                        <textarea data-k="summary" rows="4" placeholder="Scrivi una breve presentazione che colpisca..." class="input-field resize-none"></textarea>
+                        <textarea data-k="summary" rows="4" placeholder="Descrivi la tua esperienza e i tuoi obiettivi..." class="input-field resize-none"></textarea>
                     </div>
                 </div>
 
-                <!-- LISTE -->
                 <div class="space-y-6">
                     <div>
                         <div class="flex justify-between items-center mb-2">
@@ -294,15 +255,13 @@
                     </div>
                 </div>
 
-                <!-- SKILLS -->
                 <div class="input-group">
                     <label>Competenze (separate da virgola)</label>
-                    <textarea data-k="skills" rows="3" placeholder="Es: Design, Marketing, SEO, Inglese..." class="input-field resize-none"></textarea>
+                    <textarea data-k="skills" rows="3" placeholder="Es: Web Design, SEO, Photoshop, Problem Solving..." class="input-field resize-none"></textarea>
                 </div>
 
             </div>
 
-            <!-- PANEL: DESIGN -->
             <div id="p-design" class="hidden space-y-8">
                 
                 <div>
@@ -340,9 +299,9 @@
                 <div class="input-group">
                     <label>Font</label>
                     <select onchange="app.cfg('font', this.value)" class="input-field">
-                        <option value="Inter, sans-serif">Moderno (Inter)</option>
-                        <option value="Playfair Display, serif">Elegante (Playfair)</option>
-                        <option value="Roboto Mono, monospace">Tecnico (Roboto)</option>
+                        <option value="Inter, sans-serif">Inter (Moderno)</option>
+                        <option value="Playfair Display, serif">Playfair (Elegante)</option>
+                        <option value="Roboto Mono, monospace">Roboto (Tecnico)</option>
                     </select>
                 </div>
 
@@ -355,13 +314,10 @@
         </div>
     </div>
 
-    <!-- PREVIEW AREA -->
     <div class="preview-area" id="preview-container">
-        <!-- IL CV VERO E PROPRIO -->
         <div id="cv-paper"></div>
     </div>
 
-    <!-- MOBILE NAV -->
     <div class="mobile-nav">
         <button onclick="app.mob('editor')" class="mob-btn active" id="mb-edit"><i class="fa-solid fa-pen"></i> Editor</button>
         <button onclick="app.mob('preview')" class="mob-btn" id="mb-view"><i class="fa-solid fa-eye"></i> Anteprima</button>
@@ -374,25 +330,23 @@ const app = {
     data: {
         name:'', title:'', email:'', phone:'', location:'', summary:'', skills:'',
         exp:[], edu:[], photo:null,
-        config: { tpl:'elegant', accent:'#1e3a8a', bg:'#f8fafc', txt:'#1e293b', font:'Inter, sans-serif' }
+        config: { tpl:'elegant', accent:'#1e3a8a', bg:'#1e293b', txt:'#ffffff', font:'Inter, sans-serif' }
     },
 
     init() {
-        const s = localStorage.getItem('nikita_cv_final_v2');
+        const s = localStorage.getItem('nikita_cv_ultimate');
         if(s) try{ this.data = {...this.data, ...JSON.parse(s)}; }catch(e){}
-        // Fix colori default se mancano
-        if(!this.data.config.bg) this.data.config.bg = '#f8fafc';
+        if(!this.data.config.bg) this.data.config.bg = '#1e293b';
         
         this.bind(); this.renderL(); this.updPh(); this.render();
         
-        // Auto Zoom intelligente
         const obs = new ResizeObserver(() => this.zoom());
         obs.observe(document.querySelector('.preview-area'));
         setTimeout(() => this.zoom(), 500);
     },
 
     save() {
-        localStorage.setItem('nikita_cv_final_v2', JSON.stringify(this.data));
+        localStorage.setItem('nikita_cv_ultimate', JSON.stringify(this.data));
         this.render();
     },
 
@@ -403,29 +357,25 @@ const app = {
         });
     },
 
-    // --- DOWNLOAD PDF SICURO ---
     download() {
         const el = document.getElementById('cv-paper');
         const loader = document.getElementById('loader');
         loader.style.display = 'flex';
 
-        // 1. Rimuovi Zoom per catturare A4 reale
         const oldTrans = el.style.transform;
         const oldMarg = el.style.marginBottom;
         el.style.transform = 'none';
         el.style.marginBottom = '0';
 
-        // 2. Opzioni HTML2PDF
         const opt = {
             margin: 0,
-            filename: `CV_${this.data.name.replace(/\s+/g,'_') || 'NikitaLorusso_CV'}.pdf`,
+            filename: `CV_${this.data.name.replace(/\s+/g,'_') || 'NikitaLorusso_Design'}.pdf`,
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: { scale: 2, useCORS: true, logging: false },
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
 
         html2pdf().set(opt).from(el).save().then(() => {
-            // 3. Ripristina UI
             el.style.transform = oldTrans;
             el.style.marginBottom = oldMarg;
             loader.style.display = 'none';
@@ -437,7 +387,6 @@ const app = {
         });
     },
 
-    // --- FUNZIONI DATI ---
     setPhoto(el) {
         if(el.files[0]) {
             const r = new FileReader();
@@ -455,7 +404,7 @@ const app = {
         this.renderL(); this.save();
     },
     del(t, id) {
-        if(confirm('Rimuovere elemento?')) { this.data[t] = this.data[t].filter(i=>i.id!==id); this.renderL(); this.save(); }
+        if(confirm('Rimuovere?')) { this.data[t] = this.data[t].filter(i=>i.id!==id); this.renderL(); this.save(); }
     },
     updL(t, id, k, v) { this.data[t].find(i=>i.id===id)[k] = v; this.save(); },
     renderL() {
@@ -479,7 +428,6 @@ const app = {
         });
     },
 
-    // --- UI ---
     cfg(k, v) { this.data.config[k] = v; this.save(); },
     setTpl(t) {
         this.data.config.tpl = t;
@@ -507,9 +455,8 @@ const app = {
         p.style.transform = `scale(${scale})`;
         p.style.marginBottom = `-${1123 - (1123 * scale)}px`;
     },
-    reset() { if(confirm('Cancellare tutto?')) { localStorage.removeItem('nikita_cv_pro_v2'); location.reload(); } },
+    reset() { if(confirm('Cancellare tutto?')) { localStorage.removeItem('nikita_cv_ultimate'); location.reload(); } },
 
-    // --- RENDER ---
     render() {
         const d = this.data; const c = d.config;
         const t = document.getElementById('cv-paper');
@@ -528,31 +475,30 @@ const app = {
             h = `
             <div class="flex h-full tpl-elegant">
                 <div class="w-[35%] sidebar p-8 flex flex-col shrink-0">
-                    <div class="text-center mb-10">
+                    <div class="text-center mb-8">
                         ${d.photo ? `<img src="${d.photo}" style="width:120px; height:120px; border-radius:50%; object-fit:cover; margin:0 auto 15px; border:4px solid rgba(255,255,255,0.2);">` : ''}
                         <h1 style="font-size:22px; font-weight:bold; line-height:1.2; margin-bottom:5px;">${d.name || 'IL TUO NOME'}</h1>
                         <p style="opacity:0.8; font-size:13px; text-transform:uppercase; letter-spacing:1px;">${d.title || 'TITOLO'}</p>
                     </div>
-                    <div style="font-size:12px; line-height:2.2; margin-bottom:40px; opacity:0.9;">
-                        <div class="border-b border-white/20 pb-2 mb-2 font-bold opacity-70 text-[10px] uppercase tracking-wider">Contatti</div>
-                        <div><i class="fa-solid fa-envelope w-5"></i> ${d.email || 'tua@email.com'}</div>
-                        <div><i class="fa-solid fa-phone w-5"></i> ${d.phone || 'Numero'}</div>
-                        <div><i class="fa-solid fa-location-dot w-5"></i> ${d.location || 'Città'}</div>
+                    <div style="font-size:12px; line-height:2; margin-bottom:30px; opacity:0.9;">
+                        <div><i class="fa-solid fa-envelope mr-2"></i> ${d.email || 'Email'}</div>
+                        <div><i class="fa-solid fa-phone mr-2"></i> ${d.phone || 'Telefono'}</div>
+                        <div><i class="fa-solid fa-location-dot mr-2"></i> ${d.location || 'Città'}</div>
                     </div>
                     <div style="margin-top:auto">
-                        <div class="border-b border-white/20 pb-2 mb-3 font-bold opacity-70 text-[10px] uppercase tracking-wider">Competenze</div>
+                        <h3 style="font-size:11px; font-weight:bold; text-transform:uppercase; border-bottom:1px solid rgba(255,255,255,0.2); padding-bottom:5px; margin-bottom:10px; opacity:0.8;">Competenze</h3>
                         <div style="display:flex; flex-wrap:wrap; gap:5px;">
-                            ${sk.length ? sk.map(s => `<span style="background:rgba(255,255,255,0.1); padding:4px 8px; border-radius:4px; font-size:10px;">${s.trim()}</span>`).join('') : '<span style="opacity:0.5; font-size:11px;">Inserisci le tue skills</span>'}
+                            ${sk.length ? sk.map(s => `<span style="background:rgba(255,255,255,0.1); padding:3px 8px; border-radius:4px; font-size:10px;">${s.trim()}</span>`).join('') : '<span style="font-size:11px; opacity:0.6;">Aggiungi competenze...</span>'}
                         </div>
                     </div>
                 </div>
                 <div class="w-[65%] p-12 text-slate-800 bg-white">
                     <section style="margin-bottom:35px;">
-                        <h3 style="font-size:14px; font-weight:bold; text-transform:uppercase; color:${c.accent}; border-bottom:2px solid #f1f5f9; padding-bottom:8px; margin-bottom:15px; letter-spacing:1px;">Profilo</h3>
-                        <p style="font-size:13px; text-align:justify; color:#475569; line-height:1.6;">${d.summary || 'Descrivi chi sei e i tuoi obiettivi professionali qui.'}</p>
+                        <h3 style="font-size:16px; font-weight:bold; text-transform:uppercase; color:${c.accent}; border-bottom:2px solid #f1f5f9; padding-bottom:8px; margin-bottom:15px; letter-spacing:1px;">Profilo</h3>
+                        <p style="font-size:13px; text-align:justify; color:#475569;">${d.summary || 'Breve descrizione professionale.'}</p>
                     </section>
                     <section style="margin-bottom:35px;">
-                        <h3 style="font-size:14px; font-weight:bold; text-transform:uppercase; color:${c.accent}; border-bottom:2px solid #f1f5f9; padding-bottom:8px; margin-bottom:15px; letter-spacing:1px;">Esperienza</h3>
+                        <h3 style="font-size:16px; font-weight:bold; text-transform:uppercase; color:${c.accent}; border-bottom:2px solid #f1f5f9; padding-bottom:8px; margin-bottom:15px; letter-spacing:1px;">Esperienza</h3>
                         ${d.exp.length ? d.exp.map(e => `
                             <div style="margin-bottom:20px;">
                                 <div style="font-weight:bold; font-size:15px; color:#1e293b;">${e.role||'Ruolo'}</div>
@@ -561,21 +507,20 @@ const app = {
                                 </div>
                                 <p style="font-size:12px; color:#64748b; line-height:1.5;">${e.desc||''}</p>
                             </div>
-                        `).join('') : '<p style="font-size:13px; color:#94a3b8; font-style:italic;">Aggiungi la tua esperienza lavorativa.</p>'}
+                        `).join('') : '<p style="font-size:13px; color:#94a3b8; font-style:italic;">Aggiungi esperienza...</p>'}
                     </section>
                     <section>
-                        <h3 style="font-size:14px; font-weight:bold; text-transform:uppercase; color:${c.accent}; border-bottom:2px solid #f1f5f9; padding-bottom:8px; margin-bottom:15px; letter-spacing:1px;">Istruzione</h3>
+                        <h3 style="font-size:16px; font-weight:bold; text-transform:uppercase; color:${c.accent}; border-bottom:2px solid #f1f5f9; padding-bottom:8px; margin-bottom:15px; letter-spacing:1px;">Istruzione</h3>
                         ${d.edu.length ? d.edu.map(e => `
                             <div style="margin-bottom:12px;">
-                                <div style="font-weight:bold; font-size:14px;">${e.degree||'Titolo Studio'}</div>
+                                <div style="font-weight:bold; font-size:13px;">${e.degree||'Titolo Studio'}</div>
                                 <div style="font-size:12px; color:#64748b;">${e.school||'Istituto'}, ${e.year}</div>
                             </div>
-                        `).join('') : '<p style="font-size:13px; color:#94a3b8; font-style:italic;">Aggiungi la tua formazione.</p>'}
+                        `).join('') : '<p style="font-size:13px; color:#94a3b8; font-style:italic;">Aggiungi formazione...</p>'}
                     </section>
                 </div>
             </div>`;
         } else {
-            // MINIMAL
             h = `
             <div class="p-14 tpl-minimal text-slate-800 h-full">
                 <div class="text-center pb-10 mb-10" style="border-bottom:2px solid ${c.accent}">
@@ -587,7 +532,7 @@ const app = {
                 </div>
                 <section style="margin-bottom:40px;">
                     <h3 style="font-size:12px; font-weight:bold; text-transform:uppercase; color:#94a3b8; letter-spacing:2px; border-bottom:1px solid #e2e8f0; padding-bottom:5px; margin-bottom:15px;">Profilo</h3>
-                    <p style="font-size:13px; text-align:justify; line-height:1.7;">${d.summary || 'Inserisci il tuo profilo professionale.'}</p>
+                    <p style="font-size:13px; text-align:justify; line-height:1.7;">${d.summary || 'Breve descrizione professionale.'}</p>
                 </section>
                 <div style="display:flex; gap:40px;">
                     <section style="flex:1;">
