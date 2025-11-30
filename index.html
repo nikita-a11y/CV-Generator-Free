@@ -551,9 +551,19 @@ const app = {
         const p = document.getElementById('preview-col');
         const c = document.getElementById('cv-paper');
         if(p && c) {
-            const scale = Math.min((p.clientWidth - 40) / 794, 1);
+            // Larghezza A4 in px (circa 794px @ 96dpi)
+            const A4_WIDTH_PX = 794; 
+            // Larghezza disponibile nel container (meno il padding)
+            const availW = p.clientWidth - 40; 
+            
+            // Calcola la scala (max 1.0)
+            const scale = Math.min(availW / A4_WIDTH_PX, 1);
+
+            // Applica la scala
             c.style.transform = `scale(${scale})`;
-            c.style.marginBottom = `-${1123 - (1123 * scale)}px`;
+            
+            // Regola il margine inferiore per compensare l'altezza scalata
+            c.style.marginBottom = `-${1123 - (1123 * scale)}px`; 
         }
     },
     setPanel(p) {
@@ -565,10 +575,11 @@ const app = {
         document.getElementById('btn-p-design').className = p==='design' ? "flex-1 py-2 text-xs font-bold uppercase rounded text-blue-600 bg-white shadow-sm transition-all" : "flex-1 py-2 text-xs font-bold uppercase rounded text-slate-500 hover:bg-white transition-all";
     },
     mob(v) {
+        // Logica per passare da Editor a Preview su mobile
         document.body.className = v === 'editor' ? 'tab-editor' : 'tab-preview';
         document.getElementById('mb-editor').classList.toggle('active', v === 'editor');
         document.getElementById('mb-preview').classList.toggle('active', v === 'preview');
-        if(v==='preview') setTimeout(()=>this.zoom(), 100);
+        if(v==='preview') setTimeout(()=>this.zoom(), 100); // Ricalcola zoom solo quando il pannello diventa visibile
     },
     reset() { if(confirm('Cancellare tutti i dati salvati e ricominciare?')) { localStorage.removeItem('nikita_cv_pro'); location.reload(); } }
 };
