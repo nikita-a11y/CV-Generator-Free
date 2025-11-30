@@ -7,7 +7,7 @@
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Libreria per generare il PDF (FIX MOBILE) -->
+    <!-- Libreria per generare il PDF (FIX MOBILE E QUALITÀ) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <!-- Icone -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -30,11 +30,7 @@
         .app-shell { display: flex; flex: 1; overflow: hidden; position: relative; }
         
         /* Sidebar Editor */
-        .editor-col { 
-            width: 400px; background: var(--editor-bg); border-right: 1px solid #e2e8f0; 
-            display: flex; flex-direction: column; z-index: 20; 
-            box-shadow: 4px 0 20px rgba(0,0,0,0.05); 
-        }
+        .editor-col { width: 400px; background: var(--editor-bg); border-right: 1px solid #e2e8f0; display: flex; flex-direction: column; z-index: 20; box-shadow: 4px 0 20px rgba(0,0,0,0.05); }
         .editor-content { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 100px; background: #f9fafb; }
         
         /* Input Styles UX */
@@ -66,7 +62,7 @@
 
         /* --- FOGLIO A4 (ELEMENTO CORE) --- */
         #cv-paper {
-            width: 210mm;
+            width: 210mm; /* Dimensione fissa per la generazione PDF */
             min-height: 297mm;
             background: white;
             box-shadow: 0 20px 50px -10px rgba(0,0,0,0.3);
@@ -221,7 +217,7 @@
                         <input type="text" data-k="phone" placeholder="Il tuo numero" class="p-3 border rounded-lg text-sm outline-none focus:border-blue-500">
                     </div>
                     <input type="text" data-k="location" placeholder="La tua città e indirizzo" class="w-full p-3 border rounded-lg text-sm outline-none focus:border-blue-500">
-                    <textarea data-k="summary" rows="4" placeholder="Descrivi i tuoi punti di forza e obiettivi professionali..." class="w-full p-3 border rounded-lg text-sm outline-none focus:border-blue-500 resize-none"></textarea>
+                    <textarea data-k="summary" rows="4" placeholder="Profilo professionale..." class="w-full p-3 border rounded-lg text-sm outline-none focus:border-blue-500 resize-none"></textarea>
                 </div>
 
                 <!-- LISTE -->
