@@ -1,45 +1,46 @@
 <!DOCTYPE html>
 <html lang="it" class="scroll-smooth">
 <head>
+    <!-- 
+        COSTRUITO DA: Nikita Lorusso
+        VERSIONE: Editorial Collection 4.0
+        LIBRI: La Colpa, Il Gioco del Diavolo, Al Di Là del Vetro, Tim il Topolino
+    -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     
-    <!-- SEO OTTIMIZZATA PER CONVERSIONE -->
-    <title>Smetti di perdere clienti online | Guida Gratuita di Nikita Lorusso</title>
-    <meta name="description" content="Scarica la checklist gratuita per capire perché il tuo sito non vende. Risorse per imprenditori locali da Nikita Lorusso.">
-    <meta name="author" content="Nikita Lorusso">
-    <meta name="robots" content="index, follow">
-    <meta name="theme-color" content="#1a1a1a">
+    <title>Nikita Lorusso | Autore | La Colpa & Altre Storie</title>
+    <meta name="description" content="Sito ufficiale di Nikita Lorusso. Scopri i romanzi 'La Colpa', 'Il Gioco del Diavolo', 'Al Di Là del Vetro' e il libro per bambini 'Tim il Topolino'.">
+    
+    <meta name="theme-color" content="#F9F8F4">
 
-    <!-- FONTS: Mix Editoriale + Umano -->
+    <!-- FONTS -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600&family=Nanum+Pen+Script&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400;600;800&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['"Inter"', 'sans-serif'],
-                        serif: ['"Instrument Serif"', 'serif'],
-                        hand: ['"Nanum Pen Script"', 'cursive'],
+                        sans: ['"Lato"', 'sans-serif'],
+                        serif: ['"Bodoni Moda"', 'serif'],
                     },
                     colors: {
-                        paper: '#Fdfcf8', // Bianco caldo carta
-                        ink: '#1a1a1a',   // Nero inchiostro
-                        highlight: '#FFE15D', // Giallo evidenziatore
-                        accent: '#E63946', // Rosso penna
-                    },
-                    boxShadow: {
-                        'paper': '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)',
-                        'lift': '0 14px 28px rgba(0,0,0,0.1), 0 10px 10px rgba(0,0,0,0.1)',
+                        paper: '#F9F8F4', 
+                        ink: '#1A1A1A',
+                        gold: '#C5A059',
+                        red: '#8B0000',
+                        blue: '#1e3a8a',
+                        grey: '#4B5563',
                     },
                     animation: {
-                        'float': 'float 6s ease-in-out infinite',
+                        'float': 'float 8s ease-in-out infinite',
                     },
                     keyframes: {
                         float: {
@@ -53,247 +54,298 @@
     </script>
 
     <style>
-        body { 
-            background-color: #Fdfcf8; 
-            color: #1a1a1a; 
-            -webkit-font-smoothing: antialiased;
+        body { background-color: #F9F8F4; color: #1A1A1A; overflow-x: hidden; }
+        
+        .paper-texture {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none;
         }
 
-        /* TEXTURE CARTA */
-        .texture {
-            position: fixed; inset: 0; pointer-events: none; opacity: 0.6; z-index: 0;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+        /* 3D BOOK CSS */
+        .book-container {
+            perspective: 1500px;
+            display: flex; justify-content: center; align-items: center;
+        }
+        .book {
+            position: relative; transform-style: preserve-3d;
+            transition: transform 0.5s ease;
+            box-shadow: 15px 15px 40px rgba(0,0,0,0.15);
+        }
+        .book:hover {
+            transform: rotateY(-15deg) rotateX(5deg) scale(1.02);
+            box-shadow: 25px 25px 60px rgba(0,0,0,0.2);
+        }
+        .book-front {
+            position: absolute; inset: 0;
+            display: flex; flex-direction: column; justify-content: space-between;
+            padding: 20px; text-align: center;
+            border-radius: 2px 4px 4px 2px;
+            backface-visibility: hidden;
+            background-image: linear-gradient(to right, rgba(0,0,0,0.05) 0%, transparent 5%, transparent 95%, rgba(0,0,0,0.05) 100%);
+        }
+        .book-spine {
+            position: absolute; top: 0; left: -14px; width: 14px; height: 100%;
+            transform: rotateY(-90deg); transform-origin: right;
+        }
+        .book-pages {
+            position: absolute; top: 2px; right: -10px; width: 10px; height: calc(100% - 4px);
+            background: linear-gradient(to right, #fff 0%, #ddd 100%);
+            transform: rotateY(90deg); transform-origin: left;
         }
 
-        /* EFFETTO EVIDENZIATORE */
-        .marker {
-            position: relative;
-            white-space: nowrap;
-            z-index: 1;
-        }
-        .marker::before {
-            content: '';
-            position: absolute;
-            z-index: -1;
-            top: 60%; left: -0.1em; right: -0.1em; bottom: 0;
-            background-color: #FFE15D;
-            transform: rotate(-1deg);
-            opacity: 0.8;
-            transition: top 0.3s;
-        }
-        .marker:hover::before { top: 10%; }
+        /* STILI COPERTINE */
+        /* LA COLPA */
+        .style-colpa .book-front { background-color: #222; color: #F5F5F0; border: 1px solid rgba(255,255,255,0.1); }
+        .style-colpa .book-spine { background-color: #111; }
 
-        /* INPUT STYLE */
-        .input-hand {
-            background: transparent;
-            border: none;
-            border-bottom: 2px solid #ddd;
-            width: 100%;
-            padding: 10px 0;
-            font-size: 1.1rem;
-            transition: all 0.3s;
-            border-radius: 0;
-        }
-        .input-hand:focus {
-            outline: none;
-            border-bottom-color: #1a1a1a;
-            background-color: rgba(255,255,255,0.5);
-        }
+        /* IL GIOCO DEL DIAVOLO */
+        .style-diavolo .book-front { background-color: #660000; color: #F5F5F0; }
+        .style-diavolo .book-spine { background-color: #440000; }
+
+        /* AL DI LÀ DEL VETRO */
+        .style-vetro .book-front { background-color: #e5e7eb; color: #1f2937; border: 1px solid #d1d5db; }
+        .style-vetro .book-spine { background-color: #9ca3af; }
+
+        /* TIM IL TOPOLINO */
+        .style-tim .book-front { background-color: #1e3a8a; color: #FFF; }
+        .style-tim .book-spine { background-color: #172554; }
+
     </style>
 </head>
-<body class="antialiased selection:bg-black selection:text-white">
+<body class="antialiased selection:bg-ink selection:text-white">
 
-    <div class="texture"></div>
+    <div class="paper-texture"></div>
 
-    <!-- MINIMAL NAV -->
-    <nav class="w-full py-6 px-6 md:px-12 flex justify-between items-center relative z-20">
-        <span class="font-serif italic text-2xl font-bold">NL.</span>
-        <a href="https://www.nikitalorusso.com" target="_blank" class="text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-black transition-colors">
-            Vai al sito principale →
-        </a>
+    <!-- NAVBAR -->
+    <nav class="fixed top-0 w-full z-50 py-6 px-6 md:px-12 flex justify-between items-center bg-paper/90 backdrop-blur-sm border-b border-ink/5">
+        <a href="#" class="font-serif font-bold text-xl tracking-widest text-ink hover:text-gold transition-colors">N.L.</a>
+        <div class="hidden md:flex gap-10 font-sans text-xs font-bold tracking-[0.2em] uppercase text-gray-500">
+            <a href="#hero" class="text-ink hover:text-gold transition-colors">La Colpa</a>
+            <a href="#catalogo" class="hover:text-gold transition-colors">Opere</a>
+            <a href="#bio" class="hover:text-gold transition-colors">Autore</a>
+        </div>
+        <a href="https://www.amazon.it/s?k=Nikita+Lorusso" target="_blank" class="px-5 py-2 border border-ink text-ink hover:bg-ink hover:text-white transition-all uppercase text-[10px] tracking-widest font-bold">Amazon</a>
     </nav>
 
-    <!-- MAIN CONTAINER -->
-    <main class="max-w-3xl mx-auto px-6 pt-12 pb-32 relative z-10">
-        
-        <!-- HERO -->
-        <div class="text-center mb-16 relative">
-            <!-- Nota a mano -->
-            <div class="hidden md:block absolute -top-4 right-10 transform rotate-6 animate-float">
-                <p class="font-hand text-2xl text-accent">Per Imprenditori Locali ↓</p>
-                <svg class="w-8 h-8 text-accent ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
-            </div>
-
-            <h1 class="text-5xl md:text-7xl font-serif leading-[0.95] mb-8 text-ink">
-                Il tuo sito web <br>
-                è una <span class="marker">Vetrina Vuota?</span>
-            </h1>
+    <!-- HERO SECTION: LA COLPA -->
+    <header id="hero" class="min-h-screen flex items-center justify-center px-6 pt-24 pb-10 relative">
+        <div class="max-w-7xl w-full grid lg:grid-cols-2 gap-20 items-center">
             
-            <p class="text-xl text-gray-600 leading-relaxed font-light mb-10 max-w-xl mx-auto">
-                Hai speso soldi. Hai messo il sito online. <br>
-                <strong>Ma il telefono non squilla.</strong> <br><br>
-                Ti spiego perché succede (e come risolverlo da solo) in questa checklist gratuita di 5 minuti.
-            </p>
-
-            <a href="#scarica" class="inline-block bg-ink text-white font-sans font-bold px-10 py-4 rounded-full shadow-paper hover:shadow-lift hover:-translate-y-1 transition-all duration-300">
-                SCARICA LA GUIDA ORA
-            </a>
-            <p class="mt-3 text-xs text-gray-400">Gratis. Niente spam. Solo valore.</p>
-        </div>
-
-        <!-- MOCKUP LEAD MAGNET (CSS PURE) -->
-        <div class="relative w-full max-w-sm mx-auto mb-24 group">
-            <div class="absolute inset-0 bg-black blur-2xl opacity-10 transform translate-y-4 group-hover:opacity-20 transition-all duration-500"></div>
-            <div class="bg-white aspect-[1/1.4] border border-gray-200 shadow-paper relative p-8 flex flex-col items-center text-center transform rotate-2 group-hover:rotate-0 transition-all duration-500">
-                <!-- Tape effect -->
-                <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 w-24 h-6 bg-yellow-100/80 rotate-1 shadow-sm"></div>
-                
-                <div class="mt-8 mb-4">
-                    <span class="font-serif italic text-4xl font-bold">NL.</span>
-                </div>
-                <h3 class="font-sans font-bold text-3xl leading-none mb-2 text-ink uppercase tracking-tight">Il Sito<br>Che Vende</h3>
-                <div class="w-12 h-1 bg-ink my-4"></div>
-                <p class="text-gray-500 text-sm uppercase tracking-widest mb-8">Checklist di Autodiagnosi</p>
-                
-                <div class="mt-auto text-left w-full space-y-2">
-                    <div class="h-2 w-3/4 bg-gray-100 rounded"></div>
-                    <div class="h-2 w-full bg-gray-100 rounded"></div>
-                    <div class="h-2 w-5/6 bg-gray-100 rounded"></div>
-                </div>
-                
-                <!-- Sticker -->
-                <div class="absolute bottom-4 right-4 bg-accent text-white w-16 h-16 rounded-full flex items-center justify-center font-bold text-xs transform -rotate-12 shadow-md">
-                    100%<br>Gratis
+            <!-- COPERTINA 3D -->
+            <div class="order-2 lg:order-1 flex justify-center lg:justify-end">
+                <div class="book-container">
+                    <div class="book style-colpa animate-float" style="width: 320px; height: 480px;">
+                        <div class="book-spine"></div>
+                        <div class="book-pages"></div>
+                        
+                        <!-- Frontalino -->
+                        <div class="book-front">
+                            <div class="text-[10px] tracking-[0.4em] uppercase opacity-70 mt-4">Thriller</div>
+                            
+                            <div class="flex-1 flex flex-col justify-center">
+                                <h1 class="font-serif text-6xl font-bold leading-none tracking-tight mb-4">LA<br>COLPA</h1>
+                                <div class="w-12 h-[1px] bg-gold mx-auto mb-4"></div>
+                                <p class="font-sans text-xs tracking-widest uppercase opacity-80">Nessuno è davvero innocente</p>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <p class="font-sans text-sm tracking-[0.3em] uppercase font-bold text-gold">Nikita Lorusso</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- CONTENT SECTION -->
-        <div class="prose prose-lg mx-auto text-gray-700 leading-relaxed mb-24">
-            <h3 class="font-serif text-3xl italic text-black">La dura verità.</h3>
-            <p>
-                Vedo troppi imprenditori a Conversano e dintorni commettere lo stesso errore: trattano il sito web come un biglietto da visita digitale.
-            </p>
-            <p>
-                Lo mettono online e sperano. 
-                <span class="bg-yellow-100 px-1">La speranza non è una strategia.</span>
-            </p>
-            <p>
-                Nel mio lavoro principale su <strong>nikitalorusso.com</strong>, costruisco ecosistemi digitali complessi. Ma ho notato che spesso, per iniziare a vedere risultati, basta correggere <strong>10 errori banali</strong> che rendono il tuo sito invisibile o inefficace.
-            </p>
-            
-            <div class="bg-white p-8 border-l-4 border-ink shadow-sm my-10">
-                <h4 class="font-bold text-black uppercase tracking-widest text-sm mb-4">Cosa impari con questa guida:</h4>
-                <ul class="list-none space-y-3 p-0 m-0">
-                    <li class="flex items-start gap-3">
-                        <i class="fas fa-check text-accent mt-1"></i>
-                        <span>Perché la tua Home Page sta cacciando i clienti in 3 secondi.</span>
-                    </li>
-                    <li class="flex items-start gap-3">
-                        <i class="fas fa-check text-accent mt-1"></i>
-                        <span>L'errore numero 1 nelle "Call to Action" (e come sistemarlo).</span>
-                    </li>
-                    <li class="flex items-start gap-3">
-                        <i class="fas fa-check text-accent mt-1"></i>
-                        <span>Come farsi trovare su Google senza essere tecnici.</span>
-                    </li>
-                </ul>
-            </div>
-        </div>
+            <!-- TESTO -->
+            <div class="space-y-8 order-1 lg:order-2 text-center lg:text-left">
+                <div class="inline-block border-b border-gold pb-1">
+                    <span class="text-gold font-sans text-xs tracking-[0.3em] uppercase font-bold">Best Seller</span>
+                </div>
 
-        <!-- AUTHOR SECTION (Reference to Main Site) -->
-        <div class="flex flex-col md:flex-row items-center gap-8 mb-24 border-t border-b border-gray-200 py-12">
-            <div class="w-24 h-24 shrink-0 rounded-full overflow-hidden border-2 border-gray-100 shadow-inner">
-                <img src="foto.jpeg" alt="Nikita Lorusso" class="w-full h-full object-cover filter grayscale">
-            </div>
-            <div>
-                <p class="font-hand text-2xl text-gray-400 mb-1">Chi sono?</p>
-                <h4 class="font-serif text-2xl font-bold mb-2">Nikita Lorusso</h4>
-                <p class="text-sm text-gray-600 mb-4">
-                    Sono un Web & Graphic Designer. Il mio "quartier generale" è su <a href="https://www.nikitalorusso.com" target="_blank" class="text-black font-bold underline decoration-accent decoration-2 underline-offset-2">nikitalorusso.com</a>, dove gestisco progetti di branding e sviluppo completi.
+                <h2 class="text-5xl md:text-7xl font-serif font-bold text-ink leading-tight">
+                    Nessuno è davvero <br>
+                    <span class="italic font-light text-gray-500">innocente.</span>
+                </h2>
+
+                <p class="text-gray-600 text-lg leading-relaxed max-w-md mx-auto lg:mx-0 font-serif italic">
+                    "Un segreto sepolto non smette mai di respirare. Aspetta solo che qualcuno scavi abbastanza a fondo."
                 </p>
-                <p class="text-sm text-gray-600">
-                    Ho creato questa risorsa gratuita perché credo che ogni attività locale meriti di capire le basi del digitale, prima di spendere migliaia di euro.
+
+                <p class="text-ink font-sans text-sm font-light max-w-lg mx-auto lg:mx-0">
+                    Il romanzo d'esordio che scava nella psiche umana. Quando il passato bussa alla porta, l'unica via d'uscita è affrontare ciò che abbiamo fatto.
                 </p>
+
+                <div class="flex flex-col sm:flex-row gap-5 pt-6 justify-center lg:justify-start">
+                    <a href="https://www.amazon.it/s?k=La+Colpa+Nikita+Lorusso" target="_blank" class="px-10 py-4 bg-ink text-white font-sans text-xs font-bold tracking-widest uppercase hover:bg-gold transition-all shadow-lg">
+                        Acquista Ora
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </header>
+
+    <!-- CATALOGO ALTRE OPERE -->
+    <section id="catalogo" class="py-32 border-t border-ink/5 bg-white">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-24">
+                <h2 class="text-4xl font-serif text-ink mb-4">La Collezione</h2>
+                <div class="w-16 h-[1px] bg-ink mx-auto"></div>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-16">
+
+                <!-- 1. IL GIOCO DEL DIAVOLO -->
+                <div class="group cursor-pointer">
+                    <div class="book-container mb-8">
+                        <div class="book style-diavolo" style="width: 200px; height: 300px;">
+                            <div class="book-spine"></div>
+                            <div class="book-pages"></div>
+                            <div class="book-front">
+                                <div class="mt-4 text-[8px] tracking-[0.2em] uppercase opacity-70">Horror</div>
+                                <div class="flex-1 flex flex-col justify-center">
+                                    <h3 class="font-serif text-3xl leading-none mb-2">IL GIOCO<br>DEL<br>DIAVOLO</h3>
+                                    <p class="font-sans text-[8px] uppercase tracking-widest mt-2 opacity-90 border-t border-white/20 pt-2 inline-block mx-auto">In nome dell'oscurità</p>
+                                </div>
+                                <p class="font-sans text-[8px] tracking-widest uppercase mb-4 font-bold">Nikita Lorusso</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-center px-4">
+                        <h3 class="text-2xl font-serif text-ink mb-3 group-hover:text-red transition-colors">Il Gioco del Diavolo</h3>
+                        <p class="text-gray-500 text-xs font-light leading-relaxed mb-4 uppercase tracking-wide">In nome dell'oscurità</p>
+                        <p class="text-gray-600 text-sm mb-6 font-light">Un patto antico, un prezzo terribile da pagare. L'oscurità non dimentica chi la invoca.</p>
+                        <a href="https://www.amazon.it/s?k=Il+Gioco+del+Diavolo+Nikita+Lorusso" target="_blank" class="text-ink text-xs font-bold border-b border-ink/20 hover:border-ink pb-1 uppercase tracking-widest">Amazon</a>
+                    </div>
+                </div>
+
+                <!-- 2. AL DI LÀ DEL VETRO -->
+                <div class="group cursor-pointer">
+                    <div class="book-container mb-8">
+                        <div class="book style-vetro" style="width: 200px; height: 300px;">
+                            <div class="book-spine"></div>
+                            <div class="book-pages"></div>
+                            <div class="book-front">
+                                <div class="mt-4 text-[8px] tracking-[0.2em] uppercase opacity-70 text-gray-500">Suspense</div>
+                                <div class="flex-1 flex flex-col justify-center relative overflow-hidden">
+                                    <!-- Effetto vetro rotto stilizzato -->
+                                    <div class="absolute inset-0 border-r border-gray-400 rotate-12 translate-x-4 opacity-30"></div>
+                                    <h3 class="font-serif text-3xl leading-none mb-2 text-ink z-10">AL DI LÀ<br>DEL<br>VETRO</h3>
+                                    <p class="font-sans text-[8px] uppercase tracking-widest mt-2 text-gray-600 border-t border-gray-400 pt-2 inline-block mx-auto z-10">Quando l'ombra<br>prende forma</p>
+                                </div>
+                                <p class="font-sans text-[8px] tracking-widest uppercase mb-4 font-bold text-ink">Nikita Lorusso</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-center px-4">
+                        <h3 class="text-2xl font-serif text-ink mb-3 group-hover:text-gray-500 transition-colors">Al Di Là del Vetro</h3>
+                        <p class="text-gray-500 text-xs font-light leading-relaxed mb-4 uppercase tracking-wide">Quando l'ombra prende forma</p>
+                        <p class="text-gray-600 text-sm mb-6 font-light">Cosa c'è oltre il riflesso? Un thriller psicologico sulla fragilità della mente umana.</p>
+                        <a href="https://www.amazon.it/s?k=Al+Di+L%C3%A0+del+Vetro+Nikita+Lorusso" target="_blank" class="text-ink text-xs font-bold border-b border-ink/20 hover:border-ink pb-1 uppercase tracking-widest">Amazon</a>
+                    </div>
+                </div>
+
+                <!-- 3. TIM IL TOPOLINO -->
+                <div class="group cursor-pointer">
+                    <div class="book-container mb-8">
+                        <div class="book style-tim" style="width: 200px; height: 200px;"> <!-- Quadrato -->
+                            <div class="book-spine"></div>
+                            <div class="book-pages"></div>
+                            <div class="book-front">
+                                <div class="mt-2 text-[8px] tracking-[0.2em] uppercase opacity-70">Per Sognatori</div>
+                                <div class="flex-1 flex flex-col justify-center items-center">
+                                    <div class="text-2xl mb-2 opacity-80">✨</div>
+                                    <h3 class="font-sans text-2xl font-bold leading-tight">TIM<br>IL TOPOLINO</h3>
+                                    <p class="font-sans text-[6px] uppercase tracking-widest mt-2 opacity-80 max-w-[80%]">Una straordinaria avventura<br>nel bosco incantato</p>
+                                </div>
+                                <p class="font-sans text-[8px] tracking-widest uppercase mb-2 font-bold">Nikita Lorusso</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-center px-4">
+                        <h3 class="text-2xl font-serif text-ink mb-3 group-hover:text-blue transition-colors">Il Viaggio di Tim</h3>
+                        <p class="text-gray-500 text-xs font-light leading-relaxed mb-4 uppercase tracking-wide">Una straordinaria avventura</p>
+                        <p class="text-gray-600 text-sm mb-6 font-light">Una fiaba dolce e coraggiosa. Accompagna Tim nel bosco incantato alla scoperta dell'amicizia.</p>
+                        <a href="https://www.amazon.it/s?k=Il+Viaggio+di+Tim+il+Topolino+Nikita+Lorusso" target="_blank" class="text-ink text-xs font-bold border-b border-ink/20 hover:border-ink pb-1 uppercase tracking-widest">Amazon</a>
+                    </div>
+                </div>
+
             </div>
         </div>
+    </section>
 
-        <!-- FORM SECTION -->
-        <div id="scarica" class="bg-white p-8 md:p-12 rounded-2xl shadow-lift border border-gray-100 text-center relative overflow-hidden">
-            <!-- Decorative circle -->
-            <div class="absolute -top-10 -left-10 w-32 h-32 bg-yellow-100 rounded-full mix-blend-multiply filter blur-xl"></div>
+    <!-- BIO -->
+    <section id="bio" class="py-24 bg-paper relative">
+        <div class="max-w-3xl mx-auto px-6 text-center">
+            <h2 class="text-3xl font-serif text-ink mb-6">Nikita Lorusso</h2>
+            <div class="w-12 h-[2px] bg-gold mx-auto mb-8"></div>
             
-            <h2 class="text-4xl font-serif font-bold mb-4 relative z-10">Ricevi la Checklist</h2>
-            <p class="text-gray-500 mb-10 relative z-10">Inserisci la tua email. Ti invierò il PDF immediatamente.</p>
-
-            <form onsubmit="handleDownload(event)" class="max-w-md mx-auto space-y-8 relative z-10">
-                <div class="text-left">
-                    <label class="font-bold text-xs uppercase tracking-widest text-gray-400">Il tuo Nome</label>
-                    <input type="text" id="name" required class="input-hand" placeholder="Es. Marco">
-                </div>
-                <div class="text-left">
-                    <label class="font-bold text-xs uppercase tracking-widest text-gray-400">La tua Email</label>
-                    <input type="email" id="email" required class="input-hand" placeholder="nome@email.com">
-                </div>
-                
-                <button type="submit" class="w-full bg-accent text-white font-bold py-5 rounded-lg hover:bg-black transition-colors shadow-lg flex justify-center items-center gap-2 group">
-                    <span>INVIAMI IL PDF</span>
-                    <i class="fas fa-paper-plane transform group-hover:translate-x-1 transition-transform"></i>
-                </button>
-            </form>
-            
-            <p class="mt-6 text-[10px] text-gray-400 uppercase tracking-widest">
-                <i class="fas fa-lock mr-1"></i> I tuoi dati sono al sicuro.
+            <p class="text-ink font-sans font-light leading-relaxed mb-8 text-lg">
+                Scrittore poliedrico, capace di passare dalle ombre più fitte del thriller psicologico alla luce delle fiabe per bambini. 
+                Ogni libro è un viaggio diverso, unito dalla stessa passione per la narrazione.
             </p>
-        </div>
-
-    </main>
-
-    <!-- FOOTER -->
-    <footer class="bg-white border-t border-gray-100 py-12 text-center">
-        <div class="max-w-3xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
-            <span class="font-serif italic font-bold text-xl">NL.</span>
             
-            <div class="text-xs text-gray-400 uppercase tracking-widest flex flex-col md:flex-row gap-4 md:gap-8">
-                <span>&copy; 2025 Nikita Lorusso</span>
-                <a href="https://www.nikitalorusso.com" class="hover:text-black transition-colors">Sito Ufficiale</a>
-                <a href="mailto:nikitalorusso68@gmail.com" class="hover:text-black transition-colors">Contattami</a>
-            </div>
-            
-            <div class="flex gap-4 opacity-50 hover:opacity-100 transition-opacity">
-                <a href="#"><i class="fab fa-facebook-f"></i></a>
-                <a href="#"><i class="fab fa-instagram"></i></a>
+            <div class="flex justify-center gap-6 text-sm font-bold uppercase tracking-widest">
+                <a href="https://www.amazon.it/s?k=Nikita+Lorusso" target="_blank" class="flex items-center gap-2 hover:text-gold transition-colors">
+                    <i class="fab fa-amazon"></i> Profilo Autore
+                </a>
+                <a href="mailto:nikitalorusso68@gmail.com" class="flex items-center gap-2 hover:text-gold transition-colors">
+                    <i class="fas fa-envelope"></i> Contattami
+                </a>
             </div>
         </div>
+    </section>
+
+    <footer class="py-12 bg-white text-center border-t border-ink/5">
+        <p class="font-sans text-[10px] text-gray-400 uppercase tracking-widest">© 2025 Nikita Lorusso. Tutti i diritti riservati.</p>
     </footer>
 
+    <!-- Three.js Ambient Dust -->
+    <canvas id="canvas-dust" class="fixed inset-0 pointer-events-none z-0 opacity-40"></canvas>
+
     <script>
-        function handleDownload(e) {
-            e.preventDefault();
-            const name = document.getElementById('name').value;
-            const email = document.getElementById('email').value;
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('canvas-dust'), alpha: true });
+        
+        renderer.setSize(window.innerWidth, window.innerHeight);
 
-            // Logica simulata: invia una mail a te con i dati del lead
-            // E idealmente reindirizza l'utente al PDF (o glielo manda via mail)
-            
-            const subject = `📥 LEAD MAGNET RICHIESTO: ${name}`;
-            const body = `Ciao Nikita,%0D%0A%0D%0AVoglio scaricare la Checklist "Il Sito Web che Vende".%0D%0A%0D%0AI miei dati:%0D%0ANome: ${name}%0D%0AEmail: ${email}%0D%0A%0D%0A(Aggiungimi alla lista e mandami il PDF)`;
+        const particlesGeometry = new THREE.BufferGeometry();
+        const particlesCount = 300;
+        const posArray = new Float32Array(particlesCount * 3);
 
-            window.location.href = `mailto:nikitalorusso68@gmail.com?subject=${subject}&body=${body}`;
-            
-            // UI Feedback
-            const btn = e.target.querySelector('button');
-            const originalContent = btn.innerHTML;
-            
-            btn.innerHTML = 'Fatto! Controlla la posta...';
-            btn.classList.add('bg-green-600');
-            
-            setTimeout(() => {
-                btn.innerHTML = originalContent;
-                btn.classList.remove('bg-green-600');
-                e.target.reset();
-            }, 3000);
+        for(let i = 0; i < particlesCount * 3; i++) {
+            posArray[i] = (Math.random() - 0.5) * 15; 
         }
+
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+        const particlesMaterial = new THREE.PointsMaterial({
+            size: 0.01,
+            color: 0x1A1A1A,
+            transparent: true,
+            opacity: 0.15,
+        });
+
+        const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+        scene.add(particlesMesh);
+        camera.position.z = 2;
+
+        const animate = () => {
+            requestAnimationFrame(animate);
+            particlesMesh.rotation.y += 0.0002;
+            particlesMesh.position.y += 0.0003;
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
     </script>
 </body>
 </html>
+
+
